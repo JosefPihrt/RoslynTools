@@ -275,5 +275,17 @@ public class C
 }
 ");
         }
+
+        [Fact, Trait(Traits.Analyzer, DiagnosticIdentifiers.MarkTypeWithDebuggerDisplayAttribute)]
+        public async Task TestNoDiagnostic_AbstractClass()
+        {
+            await VerifyNoDiagnosticAsync(@"
+using System.Diagnostics;
+
+public abstract class C
+{
+}
+");
+        }
     }
 }
