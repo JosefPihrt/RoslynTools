@@ -88,19 +88,16 @@ namespace Roslynator.Testing
                         diagnostic,
                         (a, d) =>
                         {
-                            if (action != null)
-                                return;
-
-                            if (!d.Contains(diagnostic))
-                                return;
-
-                            if (state.EquivalenceKey != null
-                                && !string.Equals(a.EquivalenceKey, state.EquivalenceKey, StringComparison.Ordinal))
+                            if (action == null
+                                && (state.EquivalenceKey == null
+                                    || string.Equals(a.EquivalenceKey, state.EquivalenceKey, StringComparison.Ordinal))
+                                && d.Contains(diagnostic))
                             {
-                                return;
-                            }
+                                if (action != null)
+                                    Assert.True(false, "Multiple fixes available.");
 
-                            action = a;
+                                action = a;
+                            }
                         },
                         CancellationToken.None);
 

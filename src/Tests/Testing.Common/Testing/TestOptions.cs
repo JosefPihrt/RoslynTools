@@ -4,16 +4,14 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 
-#pragma warning disable RCS1223
-
 namespace Roslynator.Testing
 {
     public abstract class TestOptions
     {
-        protected TestOptions(
-            DiagnosticSeverity allowedCompilerDiagnosticSeverity,
-            IEnumerable<string> allowedCompilerDiagnosticIds,
-            IEnumerable<MetadataReference> metadataReferences)
+        internal TestOptions(
+            IEnumerable<MetadataReference> metadataReferences = null,
+            IEnumerable<string> allowedCompilerDiagnosticIds = null,
+            DiagnosticSeverity allowedCompilerDiagnosticSeverity = DiagnosticSeverity.Info)
         {
             AllowedCompilerDiagnosticSeverity = allowedCompilerDiagnosticSeverity;
             AllowedCompilerDiagnosticIds = allowedCompilerDiagnosticIds?.ToImmutableArray() ?? ImmutableArray<string>.Empty;

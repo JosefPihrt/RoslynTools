@@ -58,8 +58,10 @@ namespace Roslynator.Testing
                             if (state.EquivalenceKey == null
                                 || string.Equals(a.EquivalenceKey, state.EquivalenceKey, StringComparison.Ordinal))
                             {
-                                if (action == null)
-                                    action = a;
+                                if (action != null)
+                                    Assert.True(false, "Multiple fixes available.");
+
+                                action = a;
                             }
                         },
                         CancellationToken.None);

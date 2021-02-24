@@ -14,22 +14,22 @@ namespace Roslynator.Testing.CSharp
     public sealed class CSharpTestOptions : TestOptions
     {
         public CSharpTestOptions(
-            CSharpCompilationOptions compilationOptions,
-            CSharpParseOptions parseOptions,
-            DiagnosticSeverity allowedCompilerDiagnosticSeverity,
-            IEnumerable<string> allowedCompilerDiagnosticIds,
-            IEnumerable<MetadataReference> metadataReferences)
-            : base(allowedCompilerDiagnosticSeverity, allowedCompilerDiagnosticIds, metadataReferences)
+            CSharpCompilationOptions compilationOptions = null,
+            CSharpParseOptions parseOptions = null,
+            IEnumerable<MetadataReference> metadataReferences = null,
+            IEnumerable<string> allowedCompilerDiagnosticIds = null,
+            DiagnosticSeverity allowedCompilerDiagnosticSeverity = DiagnosticSeverity.Info)
+            : base(metadataReferences, allowedCompilerDiagnosticIds, allowedCompilerDiagnosticSeverity)
         {
-            CompilationOptions = compilationOptions;
-            ParseOptions = parseOptions;
+            CompilationOptions = compilationOptions ?? new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary);
+            ParseOptions = parseOptions ?? CSharpParseOptions.Default;
         }
 
         private CSharpTestOptions(CSharpTestOptions other)
             : base(
-                other.AllowedCompilerDiagnosticSeverity,
+                other.MetadataReferences,
                 other.AllowedCompilerDiagnosticIds,
-                other.MetadataReferences)
+                other.AllowedCompilerDiagnosticSeverity)
         {
             CompilationOptions = other.CompilationOptions;
             ParseOptions = other.ParseOptions;
@@ -66,17 +66,8 @@ namespace Roslynator.Testing.CSharp
 
         private static CSharpTestOptions CreateDefault()
         {
-            var parseOptions = new CSharpParseOptions(LanguageVersion.LatestMajor);
-
-            var compilationOptions = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary);
-
             return new CSharpTestOptions(
-                compilationOptions: compilationOptions,
-                parseOptions: parseOptions,
-                allowedCompilerDiagnosticSeverity: DiagnosticSeverity.Info,
-                allowedCompilerDiagnosticIds: null,
-                metadataReferences: RuntimeMetadataReference.MetadataReferences.Select(f => f.Value).ToImmutableArray()
-            );
+                metadataReferences: RuntimeMetadataReference.DefaultMetadataReferences.Select(f => f.Value).ToImmutableArray());
         }
 
         /// <summary>
@@ -97,7 +88,7 @@ namespace Roslynator.Testing.CSharp
             return WithAllowedCompilerDiagnosticIds(AllowedCompilerDiagnosticIds.AddRange(diagnosticIds));
         }
 
-        public CSharpTestOptions EnableDiagnostic(DiagnosticDescriptor descriptor)
+        internal CSharpTestOptions EnableDiagnostic(DiagnosticDescriptor descriptor)
         {
             ImmutableDictionary<string, ReportDiagnostic> specificDiagnosticOptions = CompilationOptions.SpecificDiagnosticOptions.SetItem(
                 descriptor.Id,
@@ -117,7 +108,7 @@ namespace Roslynator.Testing.CSharp
             return WithSpecificDiagnosticOptions(options);
         }
 
-        public CSharpTestOptions DisableDiagnostic(DiagnosticDescriptor descriptor)
+        internal CSharpTestOptions DisableDiagnostic(DiagnosticDescriptor descriptor)
         {
             ImmutableDictionary<string, ReportDiagnostic> specificDiagnosticOptions = CompilationOptions.SpecificDiagnosticOptions.SetItem(
                 descriptor.Id,
@@ -135,7 +126,7 @@ namespace Roslynator.Testing.CSharp
             return WithMetadataReferences(MetadataReferences.Add(metadataReference));
         }
 
-        public CSharpTestOptions WithSpecificDiagnosticOptions(IEnumerable<KeyValuePair<string, ReportDiagnostic>> specificDiagnosticOptions)
+        internal CSharpTestOptions WithSpecificDiagnosticOptions(IEnumerable<KeyValuePair<string, ReportDiagnostic>> specificDiagnosticOptions)
         {
             return WithCompilationOptions(CompilationOptions.WithSpecificDiagnosticOptions(specificDiagnosticOptions));
         }
@@ -152,35 +143,24 @@ namespace Roslynator.Testing.CSharp
                     ParseOptions.PreprocessorSymbolNames.Concat(new[] { "DEBUG" })));
         }
 
-#pragma warning disable CS1591
-        protected override TestOptions CommonWithAllowedCompilerDiagnosticSeverity(DiagnosticSeverity value)
-        {
-            return new CSharpTestOptions(this) { AllowedCompilerDiagnosticSeverity = value };
-        }
-
-        protected override TestOptions CommonWithAllowedCompilerDiagnosticIds(IEnumerable<string> values)
-        {
-        return new CSharpTestOptions(this) { AllowedCompilerDiagnosticIds = values?.ToImmutableArray() ?? ImmutableArray<string>.Empty };
-        }
-
         protected override TestOptions CommonWithMetadataReferences(IEnumerable<MetadataReference> values)
         {
             return new CSharpTestOptions(this) { MetadataReferences = values?.ToImmutableArray() ?? ImmutableArray<MetadataReference>.Empty };
         }
 
-        new public CSharpTestOptions WithAllowedCompilerDiagnosticSeverity(DiagnosticSeverity value)
+        protected override TestOptions CommonWithAllowedCompilerDiagnosticIds(IEnumerable<string> values)
         {
-            return (CSharpTestOptions)base.WithAllowedCompilerDiagnosticSeverity(value);
+            return new CSharpTestOptions(this) { AllowedCompilerDiagnosticIds = values?.ToImmutableArray() ?? ImmutableArray<string>.Empty };
         }
 
-        new public CSharpTestOptions WithAllowedCompilerDiagnosticIds(IEnumerable<string> values)
+        protected override TestOptions CommonWithAllowedCompilerDiagnosticSeverity(DiagnosticSeverity value)
         {
-            return (CSharpTestOptions)base.WithAllowedCompilerDiagnosticIds(values);
+            return new CSharpTestOptions(this) { AllowedCompilerDiagnosticSeverity = value };
         }
 
-        new public CSharpTestOptions WithMetadataReferences(IEnumerable<MetadataReference> values)
+        public CSharpTestOptions WithCompilationOptions(CSharpCompilationOptions compilationOptions)
         {
-            return (CSharpTestOptions)base.WithMetadataReferences(values);
+            return new CSharpTestOptions(this) { CompilationOptions = compilationOptions ?? throw new ArgumentNullException(nameof(compilationOptions)) };
         }
 
         public CSharpTestOptions WithParseOptions(CSharpParseOptions parseOptions)
@@ -188,10 +168,19 @@ namespace Roslynator.Testing.CSharp
             return new CSharpTestOptions(this) { ParseOptions = parseOptions ?? throw new ArgumentNullException(nameof(parseOptions)) };
         }
 
-        public CSharpTestOptions WithCompilationOptions(CSharpCompilationOptions compilationOptions)
+        new public CSharpTestOptions WithMetadataReferences(IEnumerable<MetadataReference> values)
         {
-            return new CSharpTestOptions(this) { CompilationOptions = compilationOptions ?? throw new ArgumentNullException(nameof(compilationOptions)) };
+            return (CSharpTestOptions)base.WithMetadataReferences(values);
         }
-#pragma warning restore CS1591
+
+        new public CSharpTestOptions WithAllowedCompilerDiagnosticIds(IEnumerable<string> values)
+        {
+            return (CSharpTestOptions)base.WithAllowedCompilerDiagnosticIds(values);
+        }
+
+        new public CSharpTestOptions WithAllowedCompilerDiagnosticSeverity(DiagnosticSeverity value)
+        {
+            return (CSharpTestOptions)base.WithAllowedCompilerDiagnosticSeverity(value);
+        }
     }
 }

@@ -290,7 +290,9 @@ class C
 {
     string _f = null!;
 }
-", options: CSharpTestOptions.Default.WithParseOptions(CSharpTestOptions.Default.ParseOptions.WithLanguageVersion(LanguageVersion.Preview)));
+", options: CSharpTestOptions.Default
+                .AddAllowedCompilerDiagnosticId("CS0414")
+                .WithParseOptions(CSharpTestOptions.Default.ParseOptions.WithLanguageVersion(LanguageVersion.CSharp9)));
         }
     }
 }

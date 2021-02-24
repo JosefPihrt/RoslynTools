@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Immutable;
-using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
 namespace Roslynator.Testing.CSharp
@@ -12,12 +11,6 @@ namespace Roslynator.Testing.CSharp
 
         private static CSharpTestOptions Create()
         {
-            CSharpParseOptions parseOptions = CSharpTestOptions.Default.ParseOptions;
-            CSharpCompilationOptions compilationOptions = CSharpTestOptions.Default.CompilationOptions;
-
-            parseOptions = parseOptions
-                .WithLanguageVersion(LanguageVersion.CSharp9);
-
             ImmutableArray<string> allowedCompilerDiagnosticIds = ImmutableArray.Create(
                 "CS0067", // Event is never used
                 "CS0168", // Variable is declared but never used
@@ -31,12 +24,9 @@ namespace Roslynator.Testing.CSharp
                 "CS8321" // The local function is declared but never used
             );
 
-            return new CSharpTestOptions(
-                compilationOptions: compilationOptions,
-                parseOptions: parseOptions,
-                allowedCompilerDiagnosticSeverity: DiagnosticSeverity.Info,
-                allowedCompilerDiagnosticIds: allowedCompilerDiagnosticIds,
-                metadataReferences: CSharpTestOptions.Default.MetadataReferences);
+            return CSharpTestOptions.Default
+                .WithParseOptions(CSharpTestOptions.Default.ParseOptions.WithLanguageVersion(LanguageVersion.CSharp9))
+                .WithAllowedCompilerDiagnosticIds(allowedCompilerDiagnosticIds);
         }
     }
 }

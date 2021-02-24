@@ -12,22 +12,22 @@ namespace Roslynator.Testing
     public sealed class VisualBasicTestOptions : TestOptions
     {
         public VisualBasicTestOptions(
-            VisualBasicCompilationOptions compilationOptions,
-            VisualBasicParseOptions parseOptions,
-            DiagnosticSeverity allowedCompilerDiagnosticSeverity,
-            IEnumerable<string> allowedCompilerDiagnosticIds,
-            IEnumerable<MetadataReference> metadataReferences)
-            : base(allowedCompilerDiagnosticSeverity, allowedCompilerDiagnosticIds, metadataReferences)
+            VisualBasicCompilationOptions compilationOptions = null,
+            VisualBasicParseOptions parseOptions = null,
+            IEnumerable<MetadataReference> metadataReferences = null,
+            IEnumerable<string> allowedCompilerDiagnosticIds = null,
+            DiagnosticSeverity allowedCompilerDiagnosticSeverity = DiagnosticSeverity.Info)
+            : base(metadataReferences, allowedCompilerDiagnosticIds, allowedCompilerDiagnosticSeverity)
         {
-            CompilationOptions = compilationOptions;
-            ParseOptions = parseOptions;
+            CompilationOptions = compilationOptions ?? new VisualBasicCompilationOptions(OutputKind.DynamicallyLinkedLibrary);
+            ParseOptions = parseOptions ?? VisualBasicParseOptions.Default;
         }
 
         private VisualBasicTestOptions(VisualBasicTestOptions other)
             : base(
-                other.AllowedCompilerDiagnosticSeverity,
+                other.MetadataReferences,
                 other.AllowedCompilerDiagnosticIds,
-                other.MetadataReferences)
+                other.AllowedCompilerDiagnosticSeverity)
         {
             CompilationOptions = other.CompilationOptions;
             ParseOptions = other.ParseOptions;
@@ -45,43 +45,25 @@ namespace Roslynator.Testing
 
         protected override CompilationOptions CommonCompilationOptions => CompilationOptions;
 
-        /// <summary>
-        /// Gets a default code verification options.
-        /// </summary>
         public static VisualBasicTestOptions Default { get; } = CreateDefault();
 
         private static VisualBasicTestOptions CreateDefault()
         {
-            var parseOptions = new VisualBasicParseOptions(LanguageVersion.Default);
+            var parseOptions = VisualBasicParseOptions.Default;
 
             var compilationOptions = new VisualBasicCompilationOptions(OutputKind.DynamicallyLinkedLibrary);
 
             return new VisualBasicTestOptions(
                 compilationOptions: compilationOptions,
                 parseOptions: parseOptions,
-                allowedCompilerDiagnosticSeverity: DiagnosticSeverity.Info,
+                metadataReferences: RuntimeMetadataReference.DefaultMetadataReferences.Select(f => f.Value).ToImmutableArray(),
                 allowedCompilerDiagnosticIds: null,
-                metadataReferences: RuntimeMetadataReference.MetadataReferences.Select(f => f.Value).ToImmutableArray());
+                allowedCompilerDiagnosticSeverity: DiagnosticSeverity.Info);
         }
 
-        /// <summary>
-        /// Adds specified assembly name to the list of assembly names.
-        /// </summary>
-        /// <param name="metadataReference"></param>
         public VisualBasicTestOptions AddMetadataReference(MetadataReference metadataReference)
         {
             return WithMetadataReferences(MetadataReferences.Add(metadataReference));
-        }
-
-#pragma warning disable CS1591
-        protected override TestOptions CommonWithAllowedCompilerDiagnosticSeverity(DiagnosticSeverity value)
-        {
-            return new VisualBasicTestOptions(this) { AllowedCompilerDiagnosticSeverity = value };
-        }
-
-        protected override TestOptions CommonWithAllowedCompilerDiagnosticIds(IEnumerable<string> values)
-        {
-            return new VisualBasicTestOptions(this) { AllowedCompilerDiagnosticIds = values?.ToImmutableArray() ?? ImmutableArray<string>.Empty };
         }
 
         protected override TestOptions CommonWithMetadataReferences(IEnumerable<MetadataReference> values)
@@ -89,9 +71,19 @@ namespace Roslynator.Testing
             return new VisualBasicTestOptions(this) { MetadataReferences = values?.ToImmutableArray() ?? ImmutableArray<MetadataReference>.Empty };
         }
 
-        new public VisualBasicTestOptions WithAllowedCompilerDiagnosticSeverity(DiagnosticSeverity value)
+        protected override TestOptions CommonWithAllowedCompilerDiagnosticIds(IEnumerable<string> values)
         {
-            return (VisualBasicTestOptions)base.WithAllowedCompilerDiagnosticSeverity(value);
+            return new VisualBasicTestOptions(this) { AllowedCompilerDiagnosticIds = values?.ToImmutableArray() ?? ImmutableArray<string>.Empty };
+        }
+
+        protected override TestOptions CommonWithAllowedCompilerDiagnosticSeverity(DiagnosticSeverity value)
+        {
+            return new VisualBasicTestOptions(this) { AllowedCompilerDiagnosticSeverity = value };
+        }
+
+        new public VisualBasicTestOptions WithMetadataReferences(IEnumerable<MetadataReference> values)
+        {
+            return (VisualBasicTestOptions)base.WithMetadataReferences(values);
         }
 
         new public VisualBasicTestOptions WithAllowedCompilerDiagnosticIds(IEnumerable<string> values)
@@ -99,9 +91,9 @@ namespace Roslynator.Testing
             return (VisualBasicTestOptions)base.WithAllowedCompilerDiagnosticIds(values);
         }
 
-        new public VisualBasicTestOptions WithMetadataReferences(IEnumerable<MetadataReference> values)
+        new public VisualBasicTestOptions WithAllowedCompilerDiagnosticSeverity(DiagnosticSeverity value)
         {
-            return (VisualBasicTestOptions)base.WithMetadataReferences(values);
+            return (VisualBasicTestOptions)base.WithAllowedCompilerDiagnosticSeverity(value);
         }
 
         public VisualBasicTestOptions WithParseOptions(VisualBasicParseOptions parseOptions)
@@ -113,6 +105,5 @@ namespace Roslynator.Testing
         {
             return new VisualBasicTestOptions(this) { CompilationOptions = compilationOptions ?? throw new ArgumentNullException(nameof(compilationOptions)) };
         }
-#pragma warning restore CS1591
     }
 }

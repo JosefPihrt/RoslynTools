@@ -228,9 +228,13 @@ namespace Roslynator.Testing
                         (a, d) =>
                         {
                             if (action == null
-                                && (state.EquivalenceKey == null || string.Equals(a.EquivalenceKey, state.EquivalenceKey, StringComparison.Ordinal))
+                                && (state.EquivalenceKey == null
+                                    || string.Equals(a.EquivalenceKey, state.EquivalenceKey, StringComparison.Ordinal))
                                 && d.Contains(diagnostic))
                             {
+                                if (action != null)
+                                    Assert.True(false, "Multiple fixes available.");
+
                                 action = a;
                             }
                         },
