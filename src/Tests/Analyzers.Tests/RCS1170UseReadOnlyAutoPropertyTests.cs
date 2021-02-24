@@ -466,5 +466,24 @@ class C
 }
 ", options: Options.AddAllowedCompilerDiagnosticId("CS0518"));
         }
+
+        [Fact, Trait(Traits.Analyzer, DiagnosticIdentifiers.UseReadOnlyAutoProperty)]
+        public async Task TestNoDiagnostic_DependencyAttribute()
+        {
+            await VerifyNoDiagnosticAsync(@"
+using System;
+
+class C
+{
+    [Dependency]
+    private string P { get; set; }
+}
+
+[AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
+class DependencyAttribute : Attribute
+{
+}
+");
+        }
     }
 }
