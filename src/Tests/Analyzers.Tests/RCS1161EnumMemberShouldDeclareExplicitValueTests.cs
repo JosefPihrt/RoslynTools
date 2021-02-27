@@ -207,7 +207,7 @@ enum Foo : sbyte
         [Fact, Trait(Traits.Analyzer, DiagnosticIdentifiers.EnumShouldDeclareExplicitValues)]
         public async Task Test_Flags_SByte_MaxValue()
         {
-            await VerifyNoFixAsync(@"
+            await VerifyDiagnosticAndNoFixAsync(@"
 using System;
 
 [Flags]

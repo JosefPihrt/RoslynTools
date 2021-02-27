@@ -51,6 +51,24 @@ static class C
         }
 
         [Fact, Trait(Traits.Analyzer, DiagnosticIdentifiers.AvoidNullReferenceException)]
+        public async Task TestNoFix_AwaitExpression()
+        {
+            await VerifyDiagnosticAndNoFixAsync(@"
+using System.Threading.Tasks;
+
+static class C
+{
+    public static async Task M(object x)
+    {
+        await (x as string)[|.|]M2().ConfigureAwait(true);
+    }
+
+    public static async Task M2(this string s) => await Task.CompletedTask;
+}
+");
+        }
+
+        [Fact, Trait(Traits.Analyzer, DiagnosticIdentifiers.AvoidNullReferenceException)]
         public async Task TestNoDiagnostic_UnconstrainedTypeParameter()
         {
             await VerifyNoDiagnosticAsync(@"
@@ -127,24 +145,6 @@ class C : I
     {
         (this as I).M();
     }
-}
-");
-        }
-
-        [Fact, Trait(Traits.Analyzer, DiagnosticIdentifiers.AvoidNullReferenceException)]
-        public async Task TestNoFix_AwaitExpression()
-        {
-            await VerifyNoFixAsync(@"
-using System.Threading.Tasks;
-
-static class C
-{
-    public static async Task M(object x)
-    {
-        await (x as string).M2().ConfigureAwait(true);
-    }
-
-    public static async Task M2(this string s) => await Task.CompletedTask;
 }
 ");
         }

@@ -2,6 +2,7 @@
 
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
@@ -38,6 +39,8 @@ namespace Roslynator.Testing.CSharp
         {
             var code = TestCode.Parse(source);
 
+            Debug.Assert(code.Spans.Length > 0);
+
             var state = new DiagnosticTestState(
                 code.Value,
                 null,
@@ -71,6 +74,8 @@ namespace Roslynator.Testing.CSharp
             CancellationToken cancellationToken = default)
         {
             var code = TestCode.Parse(source, sourceData);
+
+            Debug.Assert(code.Spans.Length > 0);
 
             var state = new DiagnosticTestState(
                 source,
@@ -154,6 +159,8 @@ namespace Roslynator.Testing.CSharp
         {
             var code = TestCode.Parse(source, sourceData);
 
+            Debug.Assert(code.Spans.Length == 0);
+
             var state = new DiagnosticTestState(
                 code.Value,
                 code.ExpectedValue,
@@ -184,13 +191,11 @@ namespace Roslynator.Testing.CSharp
             TestOptions options = null,
             CancellationToken cancellationToken = default)
         {
-            var code = TestCode.Parse(source);
-
             var state = new DiagnosticTestState(
-                code.Value,
-                code.ExpectedValue,
+                source,
+                null,
                 Descriptor,
-                code.Spans,
+                null,
                 AdditionalFile.CreateRange(additionalFiles),
                 null,
                 null,
@@ -222,6 +227,8 @@ namespace Roslynator.Testing.CSharp
         {
             var code = TestCode.Parse(source);
 
+            Debug.Assert(code.Spans.Length > 0);
+
             var state = new DiagnosticTestState(
                 code.Value,
                 expected,
@@ -233,9 +240,7 @@ namespace Roslynator.Testing.CSharp
                 null,
                 equivalenceKey: equivalenceKey);
 
-            await VerifyDiagnosticAsync(state, options, cancellationToken);
-
-            await VerifyFixAsync(state, options, cancellationToken);
+            await VerifyDiagnosticAndFixAsync(state, options, cancellationToken);
         }
 
         /// <summary>
@@ -255,6 +260,8 @@ namespace Roslynator.Testing.CSharp
         {
             var code = TestCode.Parse(source);
 
+            Debug.Assert(code.Spans.Length > 0);
+
             var state = new DiagnosticTestState(
                 code.Value,
                 null,
@@ -266,9 +273,7 @@ namespace Roslynator.Testing.CSharp
                 null,
                 equivalenceKey: equivalenceKey);
 
-            await VerifyDiagnosticAsync(state, options, cancellationToken);
-
-            await VerifyNoFixAsync(state, options, cancellationToken: cancellationToken);
+            await VerifyDiagnosticAndNoFixAsync(state, options, cancellationToken);
         }
 
         /// <summary>
@@ -292,6 +297,8 @@ namespace Roslynator.Testing.CSharp
         {
             var code = TestCode.Parse(source, sourceData, expectedData);
 
+            Debug.Assert(code.Spans.Length > 0);
+
             var state = new DiagnosticTestState(
                 code.Value,
                 code.ExpectedValue,
@@ -303,98 +310,97 @@ namespace Roslynator.Testing.CSharp
                 null,
                 equivalenceKey: equivalenceKey);
 
-            await VerifyDiagnosticAsync(state, options, cancellationToken);
-
-            await VerifyFixAsync(state, options, cancellationToken);
+            await VerifyDiagnosticAndFixAsync(state, options, cancellationToken);
         }
 
-        internal async Task VerifyFixAsync(
-            string source,
-            string sourceData,
-            string expectedData,
-            IEnumerable<(string source, string expectedSource)> additionalFiles = null,
-            string equivalenceKey = null,
-            TestOptions options = null,
-            CancellationToken cancellationToken = default)
-        {
-            var code = TestCode.Parse(source, sourceData, expectedData);
+        //TODO: del
+        //internal async Task VerifyFixAsync(
+        //    string source,
+        //    string sourceData,
+        //    string expectedData,
+        //    IEnumerable<(string source, string expectedSource)> additionalFiles = null,
+        //    string equivalenceKey = null,
+        //    TestOptions options = null,
+        //    CancellationToken cancellationToken = default)
+        //{
+        //    var code = TestCode.Parse(source, sourceData, expectedData);
 
-            var state = new DiagnosticTestState(
-                code.Value,
-                code.ExpectedValue,
-                Descriptor,
-                code.Spans,
-                AdditionalFile.CreateRange(additionalFiles),
-                null,
-                null,
-                null,
-                equivalenceKey);
+        //    Debug.Assert(code.Spans.Length > 0);
 
-            await VerifyFixAsync(
-                state,
-                options: options,
-                cancellationToken: cancellationToken);
-        }
+        //    var state = new DiagnosticTestState(
+        //        code.Value,
+        //        code.ExpectedValue,
+        //        Descriptor,
+        //        code.Spans,
+        //        AdditionalFile.CreateRange(additionalFiles),
+        //        null,
+        //        null,
+        //        null,
+        //        equivalenceKey);
 
-        internal async Task VerifyFixAsync(
-            string source,
-            string expected,
-            IEnumerable<(string source, string expectedSource)> additionalFiles = null,
-            string equivalenceKey = null,
-            TestOptions options = null,
-            CancellationToken cancellationToken = default)
-        {
-            var code = TestCode.Parse(source);
+        //    await VerifyFixAsync(
+        //        state,
+        //        options: options,
+        //        cancellationToken: cancellationToken);
+        //}
 
-            var state = new DiagnosticTestState(
-                code.Value,
-                expected,
-                Descriptor,
-                code.Spans,
-                AdditionalFile.CreateRange(additionalFiles),
-                null,
-                null,
-                null,
-                equivalenceKey);
+        //TODO: del
+        //internal async Task VerifyFixAsync(
+        //    string source,
+        //    string expected,
+        //    IEnumerable<(string source, string expectedSource)> additionalFiles = null,
+        //    string equivalenceKey = null,
+        //    TestOptions options = null,
+        //    CancellationToken cancellationToken = default)
+        //{
+        //    var code = TestCode.Parse(source);
 
-            await VerifyFixAsync(
-                state: state,
-                options: options,
-                cancellationToken: cancellationToken);
-        }
+        //    Debug.Assert(code.Spans.Length > 0);
 
-        /// <summary>
-        /// Verifies that specified source does not contains diagnostic that can be fixed with the <see cref="FixProvider"/>.
-        /// </summary>
-        /// <param name="source">A source code that should be tested. Tokens <c>[|</c> and <c>|]</c> represents start and end of selection respectively.</param>
-        /// <param name="additionalFiles"></param>
-        /// <param name="equivalenceKey">Code action's equivalence key.</param>
-        /// <param name="options"></param>
-        /// <param name="cancellationToken"></param>
-        public async Task VerifyNoFixAsync(
-            string source,
-            IEnumerable<string> additionalFiles = null,
-            string equivalenceKey = null,
-            TestOptions options = null,
-            CancellationToken cancellationToken = default)
-        {
-            var code = TestCode.Parse(source);
+        //    var state = new DiagnosticTestState(
+        //        code.Value,
+        //        expected,
+        //        Descriptor,
+        //        code.Spans,
+        //        AdditionalFile.CreateRange(additionalFiles),
+        //        null,
+        //        null,
+        //        null,
+        //        equivalenceKey);
 
-            var state = new DiagnosticTestState(
-                code.Value,
-                code.ExpectedValue,
-                Descriptor,
-                code.Spans,
-                AdditionalFile.CreateRange(additionalFiles),
-                null,
-                null,
-                null,
-                equivalenceKey);
+        //    await VerifyFixAsync(
+        //        state: state,
+        //        options: options,
+        //        cancellationToken: cancellationToken);
+        //}
 
-            await VerifyNoFixAsync(
-                state,
-                options: options,
-                cancellationToken: cancellationToken);
-        }
+        //TODO: 
+        //public async Task VerifyNoFixAsync(
+        //    string source,
+        //    IEnumerable<string> additionalFiles = null,
+        //    string equivalenceKey = null,
+        //    TestOptions options = null,
+        //    CancellationToken cancellationToken = default)
+        //{
+        //    var code = TestCode.Parse(source);
+
+        //    Debug.Assert(code.Spans.Length > 0);
+
+        //    var state = new DiagnosticTestState(
+        //        code.Value,
+        //        code.ExpectedValue,
+        //        Descriptor,
+        //        code.Spans,
+        //        AdditionalFile.CreateRange(additionalFiles),
+        //        null,
+        //        null,
+        //        null,
+        //        equivalenceKey);
+
+        //    await VerifyNoFixAsync(
+        //        state,
+        //        options: options,
+        //        cancellationToken: cancellationToken);
+        //}
     }
 }

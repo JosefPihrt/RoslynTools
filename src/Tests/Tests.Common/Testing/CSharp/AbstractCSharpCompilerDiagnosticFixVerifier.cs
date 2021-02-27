@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.CodeFixes;
@@ -39,6 +40,8 @@ namespace Roslynator.Testing.CSharp
         {
             var code = TestCode.Parse(source, sourceData, expectedData);
 
+            Debug.Assert(code.Spans.Length == 0);
+
             var state = new CompilerDiagnosticFixTestState(
                 DiagnosticId,
                 code.Value,
@@ -70,11 +73,9 @@ namespace Roslynator.Testing.CSharp
             TestOptions options = null,
             CancellationToken cancellationToken = default)
         {
-            var code = TestCode.Parse(source);
-
             var state = new CompilerDiagnosticFixTestState(
                 DiagnosticId,
-                code.Value,
+                source,
                 expected,
                 AdditionalFile.CreateRange(additionalFiles),
                 null,
@@ -101,12 +102,10 @@ namespace Roslynator.Testing.CSharp
             TestOptions options = null,
             CancellationToken cancellationToken = default)
         {
-            var code = TestCode.Parse(source);
-
             var state = new CompilerDiagnosticFixTestState(
                 DiagnosticId,
-                code.Value,
-                code.ExpectedValue,
+                source,
+                null,
                 AdditionalFile.CreateRange(additionalFiles),
                 null,
                 equivalenceKey: equivalenceKey);

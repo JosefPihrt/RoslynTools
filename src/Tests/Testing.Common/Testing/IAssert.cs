@@ -2,9 +2,6 @@
 
 namespace Roslynator.Testing
 {
-    /// <summary>
-    /// Represents an abstraction for test assertions.
-    /// </summary>
     internal interface IAssert
     {
         /// <summary>

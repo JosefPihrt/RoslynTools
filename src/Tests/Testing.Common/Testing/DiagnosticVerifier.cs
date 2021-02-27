@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -25,6 +26,12 @@ namespace Roslynator.Testing
         {
         }
 
+        /// <summary>
+        /// Verifies that specified source will produce specified diagnostic(s).
+        /// </summary>
+        /// <param name="state"></param>
+        /// <param name="options"></param>
+        /// <param name="cancellationToken"></param>
         public async Task VerifyDiagnosticAsync(
             DiagnosticTestState state,
             TestOptions options = null,
@@ -55,7 +62,7 @@ namespace Roslynator.Testing
 
                 compilation = UpdateCompilation(compilation, expectedDiagnostics);
 
-                ImmutableArray<Diagnostic> diagnostics = await compilation.GetAnalyzerDiagnosticsAsync(analyzer, DiagnosticComparer.SpanStart, cancellationToken);
+                ImmutableArray<Diagnostic> diagnostics = await GetAnalyzerDiagnosticsAsync(compilation, analyzer, DiagnosticComparer.SpanStart, cancellationToken);
 
                 if (diagnostics.Length > 0
                     && supportedDiagnostics.Length > 1)
@@ -91,7 +98,7 @@ namespace Roslynator.Testing
         }
 
         /// <summary>
-        /// Verifies that specified source will not produce diagnostic described with see <see cref="Descriptor"/>
+        /// Verifies that specified source will not produce specified diagnostic.
         /// </summary>
         /// <param name="state"></param>
         /// <param name="options"></param>
@@ -123,9 +130,9 @@ namespace Roslynator.Testing
 
                 VerifyCompilerDiagnostics(compilerDiagnostics, options);
 
-                compilation = UpdateCompilation(compilation, expectedDiagnostics);
+                compilation = UpdateCompilation(compilation, analyzer.SupportedDiagnostics);
 
-                ImmutableArray<Diagnostic> analyzerDiagnostics = await compilation.GetAnalyzerDiagnosticsAsync(analyzer, DiagnosticComparer.SpanStart, cancellationToken);
+                ImmutableArray<Diagnostic> analyzerDiagnostics = await GetAnalyzerDiagnosticsAsync(compilation, analyzer, DiagnosticComparer.SpanStart, cancellationToken);
 
                 ImmutableArray<Diagnostic> actualDiagnostics = analyzerDiagnostics.Intersect(
                     expectedDiagnostics,
@@ -137,7 +144,27 @@ namespace Roslynator.Testing
             }
         }
 
-        public async Task VerifyFixAsync(
+        public async Task VerifyDiagnosticAndFixAsync(
+            DiagnosticTestState state,
+            TestOptions options = null,
+            CancellationToken cancellationToken = default)
+        {
+            await VerifyDiagnosticAsync(state, options, cancellationToken);
+
+            await VerifyFixAsync(state, options, cancellationToken);
+        }
+
+        public async Task VerifyDiagnosticAndNoFixAsync(
+            DiagnosticTestState state,
+            TestOptions options = null,
+            CancellationToken cancellationToken = default)
+        {
+            await VerifyDiagnosticAsync(state, options, cancellationToken);
+
+            await VerifyNoFixAsync(state, options, cancellationToken);
+        }
+
+        private async Task VerifyFixAsync(
             DiagnosticTestState state,
             TestOptions options = null,
             CancellationToken cancellationToken = default)
@@ -188,7 +215,7 @@ namespace Roslynator.Testing
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    ImmutableArray<Diagnostic> diagnostics = await compilation.GetAnalyzerDiagnosticsAsync(analyzer, DiagnosticComparer.SpanStart, cancellationToken);
+                    ImmutableArray<Diagnostic> diagnostics = await GetAnalyzerDiagnosticsAsync(compilation, analyzer, DiagnosticComparer.SpanStart, cancellationToken);
 
                     int length = diagnostics.Length;
 
@@ -273,13 +300,7 @@ namespace Roslynator.Testing
             }
         }
 
-        /// <summary>
-        /// Verifies that specified source does not contains diagnostic that can be fixed with the <see cref="FixProvider"/>.
-        /// </summary>
-        /// <param name="state"></param>
-        /// <param name="options"></param>
-        /// <param name="cancellationToken"></param>
-        public async Task VerifyNoFixAsync(
+        private async Task VerifyNoFixAsync(
             DiagnosticTestState state,
             TestOptions options = null,
             CancellationToken cancellationToken = default)
@@ -310,9 +331,9 @@ namespace Roslynator.Testing
 
                 VerifyCompilerDiagnostics(compilerDiagnostics, options);
 
-                compilation = UpdateCompilation(compilation, expectedDiagnostics);
+                compilation = UpdateCompilation(compilation, analyzer.SupportedDiagnostics);
 
-                ImmutableArray<Diagnostic> diagnostics = await compilation.GetAnalyzerDiagnosticsAsync(analyzer, DiagnosticComparer.SpanStart, cancellationToken);
+                ImmutableArray<Diagnostic> diagnostics = await GetAnalyzerDiagnosticsAsync(compilation, analyzer, DiagnosticComparer.SpanStart, cancellationToken);
 
                 foreach (Diagnostic diagnostic in diagnostics)
                 {
@@ -511,13 +532,68 @@ namespace Roslynator.Testing
             Compilation compilation,
             ImmutableArray<Diagnostic> diagnostics)
         {
+            Debug.Assert(diagnostics.Any());
+
             foreach (Diagnostic diagnostic in diagnostics)
             {
                 if (!diagnostic.Descriptor.IsEnabledByDefault)
-                    compilation = compilation.EnsureEnabled(diagnostic.Descriptor);
+                    compilation = compilation.EnsureDiagnosticEnabled(diagnostic.Descriptor);
             }
 
             return compilation;
+        }
+
+        private Compilation UpdateCompilation(
+            Compilation compilation,
+            ImmutableArray<DiagnosticDescriptor> descriptors)
+        {
+            return compilation.EnsureDiagnosticEnabled(descriptors.Where(f => !f.IsEnabledByDefault));
+        }
+
+        private Task<ImmutableArray<Diagnostic>> GetAnalyzerDiagnosticsAsync(
+            Compilation compilation,
+            DiagnosticAnalyzer analyzer,
+            IComparer<Diagnostic> comparer = null,
+            CancellationToken cancellationToken = default)
+        {
+            return GetAnalyzerDiagnosticsAsync(
+                compilation,
+                ImmutableArray.Create(analyzer),
+                comparer,
+                cancellationToken);
+        }
+
+        private async Task<ImmutableArray<Diagnostic>> GetAnalyzerDiagnosticsAsync(
+            Compilation compilation,
+            ImmutableArray<DiagnosticAnalyzer> analyzers,
+            IComparer<Diagnostic> comparer = null,
+            CancellationToken cancellationToken = default)
+        {
+            Exception exception = null;
+            DiagnosticAnalyzer analyzer = null;
+
+            var options = new CompilationWithAnalyzersOptions(
+                options: null,
+                onAnalyzerException: (e, a, _) =>
+                {
+                    exception = e;
+                    analyzer = a;
+                },
+                concurrentAnalysis: true,
+                logAnalyzerExecutionTime: false,
+                reportSuppressedDiagnostics: false,
+                analyzerExceptionFilter: null);
+
+            CompilationWithAnalyzers compilationWithAnalyzers = compilation.WithAnalyzers(analyzers, options);
+
+            ImmutableArray<Diagnostic> diagnostics = await compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync(cancellationToken);
+
+            if (exception != null)
+                Assert.True(false, $"Analyzer '{analyzer.GetType()}' throws an exception:{Environment.NewLine}{exception}");
+
+            return (comparer != null)
+                ? diagnostics.Sort(comparer)
+                : diagnostics;
         }
     }
 }

@@ -2,6 +2,7 @@
 
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -34,6 +35,8 @@ namespace Roslynator.Testing.CSharp
             CancellationToken cancellationToken = default)
         {
             var code = TestCode.Parse(source);
+
+            Debug.Assert(code.Spans.Length > 0);
 
             var state = new RefactoringTestState(
                 code.Value,
@@ -70,6 +73,8 @@ namespace Roslynator.Testing.CSharp
         {
             var code = TestCode.Parse(source, sourceData, expectedData);
 
+            Debug.Assert(code.Spans.Length > 0);
+
             var state = new RefactoringTestState(
                 code.Value,
                 code.ExpectedValue,
@@ -101,8 +106,8 @@ namespace Roslynator.Testing.CSharp
 
             var state = new RefactoringTestState(
                 code.Value,
-                code.ExpectedValue,
-                code.Spans.OrderByDescending(f => f.Start).ToImmutableArray(),
+                null,
+                code.Spans,
                 null,
                 null,
                 equivalenceKey);
