@@ -3,16 +3,13 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 
-#pragma warning disable RCS1223
-
 namespace Roslynator.Testing
 {
     public abstract class TestState
     {
-        protected TestState(string source, string expectedSource)
+        protected TestState(string source, string expectedSource, IEnumerable<AdditionalFile> additionalFiles = null)
+            : this(source, expectedSource, additionalFiles, null, null)
         {
-            Source = source;
-            ExpectedSource = expectedSource;
         }
 
         protected TestState(

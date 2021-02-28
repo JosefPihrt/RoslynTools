@@ -35,7 +35,7 @@ namespace Roslynator.Testing
 
         public override string Language => LanguageNames.VisualBasic;
 
-        public override string DocumentName => "Test.vb";
+        internal override string DocumentName => "Test.vb";
 
         new public VisualBasicParseOptions ParseOptions { get; private set; }
 

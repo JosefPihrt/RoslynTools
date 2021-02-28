@@ -37,7 +37,7 @@ namespace Roslynator.Testing.CSharp
 
         public override string Language => LanguageNames.CSharp;
 
-        public override string DocumentName => "Test.cs";
+        internal override string DocumentName => "Test.cs";
 
         /// <summary>
         /// Gets a parse options that should be used to parse tested source code.

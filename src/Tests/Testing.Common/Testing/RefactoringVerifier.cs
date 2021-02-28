@@ -26,16 +26,14 @@ namespace Roslynator.Testing
             TestOptions options = null,
             CancellationToken cancellationToken = default)
         {
-            options ??= Options;
-
-            ImmutableArray<TextSpan>.Enumerator en = state.Spans.GetEnumerator();
-
-            if (!en.MoveNext())
+            if (state.Spans.IsEmpty)
                 Assert.True(false, "Span on which a refactoring should be invoked was not found.");
+
+            options ??= Options;
 
             TRefactoringProvider refactoringProvider = Activator.CreateInstance<TRefactoringProvider>();
 
-            do
+            foreach (TextSpan span in state.Spans)
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
@@ -48,11 +46,12 @@ namespace Roslynator.Testing
                     ImmutableArray<Diagnostic> compilerDiagnostics = semanticModel.GetDiagnostics(cancellationToken: cancellationToken);
 
                     VerifyCompilerDiagnostics(compilerDiagnostics, options);
+
                     CodeAction action = null;
 
                     var context = new CodeRefactoringContext(
                         document,
-                        en.Current,
+                        span,
                         a =>
                         {
                             if (state.EquivalenceKey == null
@@ -64,28 +63,25 @@ namespace Roslynator.Testing
                                 action = a;
                             }
                         },
-                        CancellationToken.None);
+                        cancellationToken);
 
                     await refactoringProvider.ComputeRefactoringsAsync(context);
 
                     Assert.True(action != null, "No code refactoring has been registered.");
 
                     document = await VerifyAndApplyCodeActionAsync(document, action, state.CodeActionTitle);
-
                     semanticModel = await document.GetSemanticModelAsync(cancellationToken);
 
                     ImmutableArray<Diagnostic> newCompilerDiagnostics = semanticModel.GetDiagnostics(cancellationToken: cancellationToken);
 
                     VerifyCompilerDiagnostics(newCompilerDiagnostics, options);
-
                     VerifyNoNewCompilerDiagnostics(compilerDiagnostics, newCompilerDiagnostics, options);
 
                     string actual = await document.ToFullStringAsync(simplify: true, format: true, cancellationToken);
 
                     Assert.Equal(state.ExpectedSource, actual);
                 }
-
-            } while (en.MoveNext());
+            }
         }
 
         public async Task VerifyNoRefactoringAsync(
@@ -93,6 +89,9 @@ namespace Roslynator.Testing
             TestOptions options = null,
             CancellationToken cancellationToken = default)
         {
+            if (state.Spans.IsEmpty)
+                Assert.True(false, "Span on which a refactoring should be invoked was not found.");
+
             cancellationToken.ThrowIfCancellationRequested();
 
             options ??= Options;
@@ -109,18 +108,13 @@ namespace Roslynator.Testing
 
                 VerifyCompilerDiagnostics(compilerDiagnostics, options);
 
-                ImmutableArray<TextSpan>.Enumerator en = state.Spans.GetEnumerator();
-
-                if (!en.MoveNext())
-                    Assert.True(false, "Span on which a refactoring should be invoked was not found.");
-
-                do
+                foreach (TextSpan span in state.Spans)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
                     var context = new CodeRefactoringContext(
                         document,
-                        en.Current,
+                        span,
                         a =>
                         {
                             if (state.EquivalenceKey == null
@@ -129,11 +123,10 @@ namespace Roslynator.Testing
                                 Assert.True(false, "No code refactoring expected.");
                             }
                         },
-                        CancellationToken.None);
+                        cancellationToken);
 
                     await refactoringProvider.ComputeRefactoringsAsync(context);
-
-                } while (en.MoveNext());
+                }
             }
         }
     }

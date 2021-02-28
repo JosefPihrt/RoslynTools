@@ -10,8 +10,8 @@ namespace Roslynator.Testing
 {
     public sealed class RefactoringTestState : TestState
     {
-        public RefactoringTestState(string source, string expectedSource, IEnumerable<TextSpan> spans)
-            : this(source, expectedSource, spans, null, null, null)
+        public RefactoringTestState(string source, string expectedSource, IEnumerable<TextSpan> spans, IEnumerable<AdditionalFile> additionalFiles = null)
+            : this(source, expectedSource, spans, additionalFiles, null, null)
         {
         }
 
@@ -73,15 +73,30 @@ namespace Roslynator.Testing
                 equivalenceKey: equivalenceKey ?? EquivalenceKey);
         }
 
-        protected override TestState CommonWithSource(string source) => WithSource(source);
+        protected override TestState CommonWithSource(string source)
+        {
+            return WithSource(source);
+        }
 
-        protected override TestState CommonWithExpectedSource(string expectedSource) => WithExpectedSource(expectedSource);
+        protected override TestState CommonWithExpectedSource(string expectedSource)
+        {
+            return WithExpectedSource(expectedSource);
+        }
 
-        protected override TestState CommonWithAdditionalFiles(IEnumerable<AdditionalFile> additionalFiles) => WithAdditionalFiles(additionalFiles);
+        protected override TestState CommonWithAdditionalFiles(IEnumerable<AdditionalFile> additionalFiles)
+        {
+            return WithAdditionalFiles(additionalFiles);
+        }
 
-        protected override TestState CommonWithCodeActionTitle(string codeActionTitle) => WithCodeActionTitle(codeActionTitle);
+        protected override TestState CommonWithCodeActionTitle(string codeActionTitle)
+        {
+            return WithCodeActionTitle(codeActionTitle);
+        }
 
-        protected override TestState CommonWithEquivalenceKey(string equivalenceKey) => WithEquivalenceKey(equivalenceKey);
+        protected override TestState CommonWithEquivalenceKey(string equivalenceKey)
+        {
+            return WithEquivalenceKey(equivalenceKey);
+        }
 
         new public RefactoringTestState WithSource(string source)
         {

@@ -9,8 +9,8 @@ namespace Roslynator.Testing
 {
     public sealed class CompilerDiagnosticFixTestState : TestState
     {
-        public CompilerDiagnosticFixTestState(string diagnosticId, string source, string expectedSource)
-            : this(diagnosticId, source, expectedSource, null, null, null)
+        public CompilerDiagnosticFixTestState(string diagnosticId, string source, string expectedSource, IEnumerable<AdditionalFile> additionalFiles = null)
+            : this(diagnosticId, source, expectedSource, additionalFiles, null, null)
         {
         }
 

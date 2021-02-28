@@ -144,23 +144,23 @@ namespace Roslynator.Testing
             }
         }
 
+        //TODO: VerifyDiagnosticWithFixAsync
         public async Task VerifyDiagnosticAndFixAsync(
             DiagnosticTestState state,
             TestOptions options = null,
             CancellationToken cancellationToken = default)
         {
             await VerifyDiagnosticAsync(state, options, cancellationToken);
-
             await VerifyFixAsync(state, options, cancellationToken);
         }
 
+        //TODO: VerifyDiagnosticWithoutFixAsync
         public async Task VerifyDiagnosticAndNoFixAsync(
             DiagnosticTestState state,
             TestOptions options = null,
             CancellationToken cancellationToken = default)
         {
             await VerifyDiagnosticAsync(state, options, cancellationToken);
-
             await VerifyNoFixAsync(state, options, cancellationToken);
         }
 
@@ -224,20 +224,22 @@ namespace Roslynator.Testing
                         Assert.True(false, "Same diagnostics returned before and after the fix was applied.");
                     }
 
-                    Diagnostic diagnostic = null;
-                    foreach (Diagnostic d in diagnostics)
+                    Diagnostic diagnostic = FindDiagnosticToFix(diagnostics, expectedDiagnostics);
+
+                    static Diagnostic FindDiagnosticToFix(
+                        ImmutableArray<Diagnostic> diagnostics,
+                        ImmutableArray<Diagnostic> expectedDiagnostics)
                     {
-                        foreach (Diagnostic d2 in expectedDiagnostics)
+                        foreach (Diagnostic diagnostic in diagnostics)
                         {
-                            if (d.Id == d2.Id)
+                            foreach (Diagnostic diagnostic2 in expectedDiagnostics)
                             {
-                                diagnostic = d;
-                                break;
+                                if (diagnostic.Id == diagnostic2.Id)
+                                    return diagnostic;
                             }
                         }
 
-                        if (diagnostic != null)
-                            break;
+                        return null;
                     }
 
                     if (diagnostic == null)
@@ -260,7 +262,7 @@ namespace Roslynator.Testing
                                 action = a;
                             }
                         },
-                        CancellationToken.None);
+                        cancellationToken);
 
                     await fixProvider.RegisterCodeFixesAsync(context);
 
@@ -270,13 +272,11 @@ namespace Roslynator.Testing
                     fixRegistered = true;
 
                     document = await VerifyAndApplyCodeActionAsync(document, action, state.CodeActionTitle);
-
                     compilation = await document.Project.GetCompilationAsync(cancellationToken);
 
                     ImmutableArray<Diagnostic> newCompilerDiagnostics = compilation.GetDiagnostics(cancellationToken);
 
                     VerifyCompilerDiagnostics(newCompilerDiagnostics, options);
-
                     VerifyNoNewCompilerDiagnostics(compilerDiagnostics, newCompilerDiagnostics, options);
 
                     compilation = UpdateCompilation(compilation, expectedDiagnostics);
@@ -334,26 +334,25 @@ namespace Roslynator.Testing
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    if (expectedDiagnostics.IndexOf(diagnostic, DiagnosticComparer.Id) == -1)
-                        continue;
-
-                    if (!fixableDiagnosticIds.Contains(diagnostic.Id))
-                        continue;
-
-                    var context = new CodeFixContext(
-                        document,
-                        diagnostic,
-                        (a, d) =>
-                        {
-                            if ((state.EquivalenceKey == null || string.Equals(a.EquivalenceKey, state.EquivalenceKey, StringComparison.Ordinal))
-                                && d.Contains(diagnostic))
+                    if (expectedDiagnostics.IndexOf(diagnostic, DiagnosticComparer.Id) >= 0
+                        && fixableDiagnosticIds.Contains(diagnostic.Id))
+                    {
+                        var context = new CodeFixContext(
+                            document,
+                            diagnostic,
+                            (a, d) =>
                             {
-                                Assert.True(false, "No code fix expected.");
-                            }
-                        },
-                        CancellationToken.None);
+                                if ((state.EquivalenceKey == null
+                                    || string.Equals(a.EquivalenceKey, state.EquivalenceKey, StringComparison.Ordinal))
+                                    && d.Contains(diagnostic))
+                                {
+                                    Assert.True(false, "No code fix expected.");
+                                }
+                            },
+                            cancellationToken);
 
-                    await fixProvider.RegisterCodeFixesAsync(context);
+                        await fixProvider.RegisterCodeFixesAsync(context);
+                    }
                 }
             }
         }
@@ -462,9 +461,7 @@ namespace Roslynator.Testing
                 VerifyAdditionalLocations(actualDiagnostic.AdditionalLocations, expectedDiagnostic.AdditionalLocations);
 
             if (message != null)
-            {
                 Assert.Equal(message, actualDiagnostic.GetMessage(formatProvider));
-            }
 
             void VerifyLocation(
                 Location actualLocation,
@@ -495,7 +492,6 @@ namespace Roslynator.Testing
                     Assert.True(false, $"Diagnostic expected to be in file \"{expected.Path}\", actual: \"{actual.Path}\"{GetMessage()}");
 
                 VerifyLinePosition(actual.StartLinePosition, expected.StartLinePosition, "start");
-
                 VerifyLinePosition(actual.EndLinePosition, expected.EndLinePosition, "end");
             }
 
@@ -584,7 +580,7 @@ namespace Roslynator.Testing
             ImmutableArray<Diagnostic> diagnostics = await compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync(cancellationToken);
 
             if (exception != null)
-                Assert.True(false, $"Analyzer '{analyzer.GetType()}' throws an exception:{Environment.NewLine}{exception}");
+                Assert.True(false, $"An exception occurred in analyzer '{analyzer.GetType()}'.{Environment.NewLine}{exception}");
 
             return (comparer != null)
                 ? diagnostics.Sort(comparer)

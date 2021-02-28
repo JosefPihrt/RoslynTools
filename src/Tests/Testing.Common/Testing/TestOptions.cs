@@ -13,14 +13,14 @@ namespace Roslynator.Testing
             IEnumerable<string> allowedCompilerDiagnosticIds = null,
             DiagnosticSeverity allowedCompilerDiagnosticSeverity = DiagnosticSeverity.Info)
         {
-            AllowedCompilerDiagnosticSeverity = allowedCompilerDiagnosticSeverity;
-            AllowedCompilerDiagnosticIds = allowedCompilerDiagnosticIds?.ToImmutableArray() ?? ImmutableArray<string>.Empty;
             MetadataReferences = metadataReferences?.ToImmutableArray() ?? ImmutableArray<MetadataReference>.Empty;
+            AllowedCompilerDiagnosticIds = allowedCompilerDiagnosticIds?.ToImmutableArray() ?? ImmutableArray<string>.Empty;
+            AllowedCompilerDiagnosticSeverity = allowedCompilerDiagnosticSeverity;
         }
 
         public abstract string Language { get; }
 
-        public abstract string DocumentName { get; }
+        internal abstract string DocumentName { get; }
 
         /// <summary>
         /// Gets a common parse options.
@@ -42,21 +42,21 @@ namespace Roslynator.Testing
         /// </summary>
         public CompilationOptions CompilationOptions => CommonCompilationOptions;
 
-        public DiagnosticSeverity AllowedCompilerDiagnosticSeverity { get; protected set; }
+        public ImmutableArray<MetadataReference> MetadataReferences { get; protected set; }
 
         public ImmutableArray<string> AllowedCompilerDiagnosticIds { get; protected set; }
 
-        public ImmutableArray<MetadataReference> MetadataReferences { get; protected set; }
-
-        protected abstract TestOptions CommonWithAllowedCompilerDiagnosticSeverity(DiagnosticSeverity value);
-
-        protected abstract TestOptions CommonWithAllowedCompilerDiagnosticIds(IEnumerable<string> values);
+        public DiagnosticSeverity AllowedCompilerDiagnosticSeverity { get; protected set; }
 
         protected abstract TestOptions CommonWithMetadataReferences(IEnumerable<MetadataReference> values);
 
-        public TestOptions WithAllowedCompilerDiagnosticSeverity(DiagnosticSeverity value)
+        protected abstract TestOptions CommonWithAllowedCompilerDiagnosticIds(IEnumerable<string> values);
+
+        protected abstract TestOptions CommonWithAllowedCompilerDiagnosticSeverity(DiagnosticSeverity value);
+
+        public TestOptions WithMetadataReferences(IEnumerable<MetadataReference> values)
         {
-            return CommonWithAllowedCompilerDiagnosticSeverity(value);
+            return CommonWithMetadataReferences(values);
         }
 
         public TestOptions WithAllowedCompilerDiagnosticIds(IEnumerable<string> values)
@@ -64,9 +64,9 @@ namespace Roslynator.Testing
             return CommonWithAllowedCompilerDiagnosticIds(values);
         }
 
-        public TestOptions WithMetadataReferences(IEnumerable<MetadataReference> values)
+        public TestOptions WithAllowedCompilerDiagnosticSeverity(DiagnosticSeverity value)
         {
-            return CommonWithMetadataReferences(values);
+            return CommonWithAllowedCompilerDiagnosticSeverity(value);
         }
 
         internal bool IsAllowedCompilerDiagnostic(Diagnostic diagnostic)
