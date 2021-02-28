@@ -72,15 +72,30 @@ namespace Roslynator.Testing
                 equivalenceKey: equivalenceKey ?? EquivalenceKey);
         }
 
-        protected override TestState CommonWithSource(string source) => WithSource(source);
+        protected override TestState CommonWithSource(string source)
+        {
+            return WithSource(source);
+        }
 
-        protected override TestState CommonWithExpectedSource(string expectedSource) => WithExpectedSource(expectedSource);
+        protected override TestState CommonWithExpectedSource(string expectedSource)
+        {
+            return WithExpectedSource(expectedSource);
+        }
 
-        protected override TestState CommonWithAdditionalFiles(IEnumerable<AdditionalFile> additionalFiles) => WithAdditionalFiles(additionalFiles);
+        protected override TestState CommonWithAdditionalFiles(IEnumerable<AdditionalFile> additionalFiles)
+        {
+            return WithAdditionalFiles(additionalFiles);
+        }
 
-        protected override TestState CommonWithCodeActionTitle(string codeActionTitle) => WithCodeActionTitle(codeActionTitle);
+        protected override TestState CommonWithCodeActionTitle(string codeActionTitle)
+        {
+            return WithCodeActionTitle(codeActionTitle);
+        }
 
-        protected override TestState CommonWithEquivalenceKey(string equivalenceKey) => WithEquivalenceKey(equivalenceKey);
+        protected override TestState CommonWithEquivalenceKey(string equivalenceKey)
+        {
+            return WithEquivalenceKey(equivalenceKey);
+        }
 
         public CompilerDiagnosticFixTestState WithDiagnosticId(string diagnosticId)
         {

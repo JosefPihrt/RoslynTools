@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace Roslynator.Testing
@@ -32,50 +33,19 @@ namespace Roslynator.Testing
         /// </summary>
         public TestOptions Options => CommonOptions;
 
-        /// <summary>
-        /// Gets a test assertions.
-        /// </summary>
         internal IAssert Assert { get; }
 
         internal void VerifyCompilerDiagnostics(
             ImmutableArray<Diagnostic> diagnostics,
             TestOptions options)
         {
-            DiagnosticSeverity maxAllowedSeverity = options.AllowedCompilerDiagnosticSeverity;
-
-            ImmutableArray<string> allowedDiagnosticIds = options.AllowedCompilerDiagnosticIds;
-
-            if (IsAny())
+            foreach (Diagnostic diagnostic in diagnostics)
             {
-                IEnumerable<Diagnostic> notAllowed = diagnostics
-                    .Where(f => f.Severity > maxAllowedSeverity && !allowedDiagnosticIds.Any(id => id == f.Id));
-
-                Assert.True(false, $"No compiler diagnostics with severity higher than '{maxAllowedSeverity}' expected{notAllowed.ToDebugString()}");
-            }
-
-            bool IsAny()
-            {
-                foreach (Diagnostic diagnostic in diagnostics)
+                if (!options.IsAllowedCompilerDiagnostic(diagnostic))
                 {
-                    if (diagnostic.Severity > maxAllowedSeverity
-                        && !IsAllowed(diagnostic))
-                    {
-                        return true;
-                    }
+                    Assert.True(false, $"No compiler diagnostics with severity higher than '{options.AllowedCompilerDiagnosticSeverity}' expected"
+                        + diagnostics.Where(d => !options.IsAllowedCompilerDiagnostic(d)).ToDebugString());
                 }
-
-                return false;
-            }
-
-            bool IsAllowed(Diagnostic diagnostic)
-            {
-                foreach (string diagnosticId in allowedDiagnosticIds)
-                {
-                    if (diagnostic.Id == diagnosticId)
-                        return true;
-                }
-
-                return false;
             }
         }
 
@@ -84,54 +54,35 @@ namespace Roslynator.Testing
             ImmutableArray<Diagnostic> newDiagnostics,
             TestOptions options)
         {
-            ImmutableArray<string> allowedDiagnosticIds = options.AllowedCompilerDiagnosticIds;
-
-            if (allowedDiagnosticIds.IsDefault)
-                allowedDiagnosticIds = ImmutableArray<string>.Empty;
-
-            if (IsAnyNewCompilerDiagnostic())
+            foreach (Diagnostic newDiagnostic in newDiagnostics)
             {
-                IEnumerable<Diagnostic> diff = newDiagnostics
-                    .Where(diagnostic => !allowedDiagnosticIds.Any(id => id == diagnostic.Id))
-                    .Except(diagnostics, DiagnosticDeepEqualityComparer.Instance);
-
-                Assert.True(false, $"Code fix introduced new compiler diagnostic(s).{diff.ToDebugString()}");
-            }
-
-            bool IsAnyNewCompilerDiagnostic()
-            {
-                foreach (Diagnostic newDiagnostic in newDiagnostics)
+                if (!options.IsAllowedCompilerDiagnostic(newDiagnostic)
+                    && IsNewCompilerDiagnostic(newDiagnostic))
                 {
-                    if (!IsAllowed(newDiagnostic)
-                        && !EqualsAny(newDiagnostic))
-                    {
-                        return true;
-                    }
-                }
+                    IEnumerable<Diagnostic> diff = newDiagnostics
+                        .Where(diagnostic => !options.IsAllowedCompilerDiagnostic(diagnostic))
+                        .Except(diagnostics, DiagnosticDeepEqualityComparer.Instance);
 
-                return false;
+                    var message = "Code fix introduced new compiler diagnostic";
+
+                    if (diff.Count() > 1)
+                        message += "s";
+
+                    message += ".";
+
+                    Assert.True(false, message + diff.ToDebugString());
+                }
             }
 
-            bool IsAllowed(Diagnostic diagnostic)
-            {
-                foreach (string diagnosticId in allowedDiagnosticIds)
-                {
-                    if (diagnostic.Id == diagnosticId)
-                        return true;
-                }
-
-                return false;
-            }
-
-            bool EqualsAny(Diagnostic newDiagnostic)
+            bool IsNewCompilerDiagnostic(Diagnostic newDiagnostic)
             {
                 foreach (Diagnostic diagnostic in diagnostics)
                 {
                     if (DiagnosticDeepEqualityComparer.Instance.Equals(diagnostic, newDiagnostic))
-                        return true;
+                        return false;
                 }
 
-                return false;
+                return true;
             }
         }
 
@@ -172,15 +123,21 @@ namespace Roslynator.Testing
             ImmutableArray<Diagnostic> diagnostics)
         {
             foreach (Diagnostic diagnostic in diagnostics)
-            {
                 VerifySupportedDiagnostics(analyzer, diagnostic);
-            }
         }
 
         internal void VerifySupportedDiagnostics(DiagnosticAnalyzer analyzer, Diagnostic diagnostic)
         {
             if (analyzer.SupportedDiagnostics.IndexOf(diagnostic.Descriptor, DiagnosticDescriptorComparer.Id) == -1)
-                Assert.True(false, $"Diagnostic \"{diagnostic.Id}\" is not supported by analyzer '{analyzer.GetType().Name}'.");
+                Assert.True(false, $"Diagnostic \"{diagnostic.Id}\" is not supported by '{analyzer.GetType().Name}'.");
+        }
+
+        internal void VerifyFixableDiagnostics(CodeFixProvider fixProvider, string diagnosticId)
+        {
+            ImmutableArray<string> fixableDiagnosticIds = fixProvider.FixableDiagnosticIds;
+
+            if (!fixableDiagnosticIds.Contains(diagnosticId))
+                Assert.True(false, $"Diagnostic '{diagnosticId}' is not fixable by '{fixProvider.GetType().Name}'.");
         }
     }
 }

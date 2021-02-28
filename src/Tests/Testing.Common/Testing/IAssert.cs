@@ -9,13 +9,13 @@ namespace Roslynator.Testing
         /// </summary>
         /// <param name="expected"></param>
         /// <param name="actual"></param>
-        public abstract void Equal(string expected, string actual);
+        void Equal(string expected, string actual);
 
         /// <summary>
         /// Throws an error if a condition is not equal to <c>true</c>.
         /// </summary>
         /// <param name="condition"></param>
         /// <param name="userMessage"></param>
-        public abstract void True(bool condition, string userMessage);
+        void True(bool condition, string userMessage);
     }
 }

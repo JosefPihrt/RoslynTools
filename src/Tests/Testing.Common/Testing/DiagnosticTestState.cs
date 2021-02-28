@@ -13,14 +13,13 @@ namespace Roslynator.Testing
     //TODO: Diagnostic.Properties, AdditionalLocations
     public sealed class DiagnosticTestState : TestState
     {
-        internal static DiagnosticTestState Empty { get; } = new DiagnosticTestState(null, null, null, null);
-
         public DiagnosticTestState(
             string source,
             string expectedSource,
             DiagnosticDescriptor descriptor,
-            IEnumerable<TextSpan> spans)
-            : this(source, expectedSource, descriptor, spans, null, null, null, null, null)
+            IEnumerable<TextSpan> spans,
+            IEnumerable<AdditionalFile> additionalFiles = null)
+            : this(source, expectedSource, descriptor, spans, additionalFiles, null, null, null, null)
         {
         }
 

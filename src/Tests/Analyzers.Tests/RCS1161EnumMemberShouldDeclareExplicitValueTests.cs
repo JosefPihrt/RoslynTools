@@ -105,7 +105,7 @@ enum Foo
     C = 2,
     D = 4,
 }
-");
+", equivalenceKey: EquivalenceKey.Create(Descriptor.Id));
         }
 
         [Fact, Trait(Traits.Analyzer, DiagnosticIdentifiers.EnumShouldDeclareExplicitValues)]
@@ -165,7 +165,7 @@ enum Foo
     E = 16,
     F = 32
 }
-");
+", equivalenceKey: EquivalenceKey.Create(Descriptor.Id));
         }
 
         [Fact, Trait(Traits.Analyzer, DiagnosticIdentifiers.EnumShouldDeclareExplicitValues)]
@@ -201,7 +201,7 @@ enum Foo : sbyte
     G = 32,
     H = 64
 }
-");
+", equivalenceKey: EquivalenceKey.Create(Descriptor.Id));
         }
 
         [Fact, Trait(Traits.Analyzer, DiagnosticIdentifiers.EnumShouldDeclareExplicitValues)]

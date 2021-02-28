@@ -68,5 +68,19 @@ namespace Roslynator.Testing
         {
             return CommonWithMetadataReferences(values);
         }
+
+        internal bool IsAllowedCompilerDiagnostic(Diagnostic diagnostic)
+        {
+            if (diagnostic.Severity <= AllowedCompilerDiagnosticSeverity)
+                return true;
+
+            foreach (string diagnosticId in AllowedCompilerDiagnosticIds)
+            {
+                if (diagnostic.Id == diagnosticId)
+                    return true;
+            }
+
+            return false;
+        }
     }
 }

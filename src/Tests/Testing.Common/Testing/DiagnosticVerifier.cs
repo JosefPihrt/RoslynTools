@@ -177,7 +177,6 @@ namespace Roslynator.Testing
             TFixProvider fixProvider = Activator.CreateInstance<TFixProvider>();
 
             ImmutableArray<DiagnosticDescriptor> supportedDiagnostics = analyzer.SupportedDiagnostics;
-            ImmutableArray<string> fixableDiagnosticIds = fixProvider.FixableDiagnosticIds;
 
             using (Workspace workspace = new AdhocWorkspace())
             {
@@ -192,10 +191,7 @@ namespace Roslynator.Testing
                 ImmutableArray<Diagnostic> expectedDiagnostics = state.GetDiagnostics(tree);
 
                 foreach (Diagnostic diagnostic in expectedDiagnostics)
-                {
-                    if (!fixableDiagnosticIds.Contains(diagnostic.Id))
-                        Assert.True(false, $"Diagnostic '{diagnostic.Id}' is not fixable by code fix provider '{fixProvider.GetType().Name}'.");
-                }
+                    VerifyFixableDiagnostics(fixProvider, diagnostic.Id);
 
                 VerifySupportedDiagnostics(analyzer, expectedDiagnostics);
 
@@ -254,9 +250,8 @@ namespace Roslynator.Testing
                         diagnostic,
                         (a, d) =>
                         {
-                            if (action == null
-                                && (state.EquivalenceKey == null
-                                    || string.Equals(a.EquivalenceKey, state.EquivalenceKey, StringComparison.Ordinal))
+                            if ((state.EquivalenceKey == null
+                                || string.Equals(state.EquivalenceKey, a.EquivalenceKey, StringComparison.Ordinal))
                                 && d.Contains(diagnostic))
                             {
                                 if (action != null)

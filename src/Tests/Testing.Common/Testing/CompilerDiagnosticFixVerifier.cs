@@ -22,7 +22,7 @@ namespace Roslynator.Testing
         }
 
         /// <summary>
-        /// Verifies that specified source will produce compiler diagnostic with ID specified in <see cref="DiagnosticId"/>.
+        /// Verifies that specified source will produce compiler diagnostic.
         /// </summary>
         /// <param name="state"></param>
         /// <param name="options"></param>
@@ -37,10 +37,8 @@ namespace Roslynator.Testing
             options ??= Options;
 
             TFixProvider fixProvider = Activator.CreateInstance<TFixProvider>();
-            ImmutableArray<string> fixableDiagnosticIds = fixProvider.FixableDiagnosticIds;
 
-            if (!fixableDiagnosticIds.Contains(state.DiagnosticId))
-                Assert.True(false, $"Code fix provider '{fixProvider.GetType().Name}' cannot fix diagnostic '{state.DiagnosticId}'.");
+            VerifyFixableDiagnostics(fixProvider, state.DiagnosticId);
 
             using (Workspace workspace = new AdhocWorkspace())
             {
@@ -88,18 +86,17 @@ namespace Roslynator.Testing
                         diagnostic,
                         (a, d) =>
                         {
-                            if (action == null
-                                && (state.EquivalenceKey == null
-                                    || string.Equals(a.EquivalenceKey, state.EquivalenceKey, StringComparison.Ordinal))
+                            if ((state.EquivalenceKey == null
+                                || string.Equals(state.EquivalenceKey, a.EquivalenceKey, StringComparison.Ordinal))
                                 && d.Contains(diagnostic))
                             {
                                 if (action != null)
-                                    Assert.True(false, "Multiple fixes available.");
+                                    Assert.True(false, $"Multiple fixes registered by '{fixProvider.GetType().Name}'.");
 
                                 action = a;
                             }
                         },
-                        CancellationToken.None);
+                        cancellationToken);
 
                     await fixProvider.RegisterCodeFixesAsync(context);
 
@@ -144,7 +141,7 @@ namespace Roslynator.Testing
         }
 
         /// <summary>
-        /// Verifies that specified source will not produce compiler diagnostic with ID specified in <see cref="DiagnosticId"/>.
+        /// Verifies that specified source will not produce compiler diagnostic.
         /// </summary>
         /// <param name="state"></param>
         /// <param name="options"></param>
@@ -179,18 +176,18 @@ namespace Roslynator.Testing
                         diagnostic,
                         (a, d) =>
                         {
-                            if (!d.Contains(diagnostic))
-                                return;
-
                             if (state.EquivalenceKey != null
                                 && !string.Equals(a.EquivalenceKey, state.EquivalenceKey, StringComparison.Ordinal))
                             {
                                 return;
                             }
 
+                            if (!d.Contains(diagnostic))
+                                return;
+
                             Assert.True(false, "No code fix expected.");
                         },
-                        CancellationToken.None);
+                        cancellationToken);
 
                     await fixProvider.RegisterCodeFixesAsync(context);
                 }

@@ -61,7 +61,7 @@ public abstract class Comparable : IComparable<C>, IComparable
         throw new ArgumentException("""", nameof(obj));
     }
 }
-");
+", equivalenceKey: EquivalenceKey.Create(Descriptor.Id));
         }
 
         [Fact, Trait(Traits.Analyzer, DiagnosticIdentifiers.ImplementNonGenericCounterpart)]
@@ -164,7 +164,7 @@ public abstract class Comparer : IComparer<C>, IComparer
         throw new ArgumentException("""", nameof(x));
     }
 }
-");
+", equivalenceKey: EquivalenceKey.Create(Descriptor.Id));
         }
 
         [Fact, Trait(Traits.Analyzer, DiagnosticIdentifiers.ImplementNonGenericCounterpart)]
@@ -294,7 +294,7 @@ public abstract class EqualityComparer : IEqualityComparer<C>, IEqualityComparer
         throw new ArgumentException("""", nameof(obj));
     }
 }
-");
+", equivalenceKey: EquivalenceKey.Create(Descriptor.Id));
         }
 
         [Fact, Trait(Traits.Analyzer, DiagnosticIdentifiers.ImplementNonGenericCounterpart)]

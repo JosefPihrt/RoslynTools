@@ -46,11 +46,7 @@ namespace Roslynator.Testing.CSharp
                 null,
                 Descriptor,
                 code.Spans,
-                AdditionalFile.CreateRange(additionalFiles),
-                null,
-                null,
-                null,
-                null);
+                AdditionalFile.CreateRange(additionalFiles));
 
             await VerifyDiagnosticAsync(
                 state,
@@ -82,11 +78,7 @@ namespace Roslynator.Testing.CSharp
                 null,
                 Descriptor,
                 code.Spans,
-                AdditionalFile.CreateRange(additionalFiles),
-                null,
-                null,
-                null,
-                null);
+                AdditionalFile.CreateRange(additionalFiles));
 
             await VerifyDiagnosticAsync(
                 state,
@@ -106,11 +98,7 @@ namespace Roslynator.Testing.CSharp
                 null,
                 Descriptor,
                 ImmutableArray.Create(span),
-                AdditionalFile.CreateRange(additionalFiles),
-                null,
-                null,
-                null,
-                null);
+                AdditionalFile.CreateRange(additionalFiles));
 
             await VerifyDiagnosticAsync(
                 state,
@@ -130,11 +118,7 @@ namespace Roslynator.Testing.CSharp
                 null,
                 Descriptor,
                 spans,
-                AdditionalFile.CreateRange(additionalFiles),
-                null,
-                null,
-                null,
-                null);
+                AdditionalFile.CreateRange(additionalFiles));
 
             await VerifyDiagnosticAsync(
                 state,
@@ -166,11 +150,7 @@ namespace Roslynator.Testing.CSharp
                 code.ExpectedValue,
                 Descriptor,
                 code.Spans,
-                AdditionalFile.CreateRange(additionalFiles),
-                null,
-                null,
-                null,
-                null);
+                AdditionalFile.CreateRange(additionalFiles));
 
             await VerifyNoDiagnosticAsync(
                 state,
@@ -196,11 +176,7 @@ namespace Roslynator.Testing.CSharp
                 null,
                 Descriptor,
                 null,
-                AdditionalFile.CreateRange(additionalFiles),
-                null,
-                null,
-                null,
-                null);
+                AdditionalFile.CreateRange(additionalFiles));
 
             await VerifyNoDiagnosticAsync(
                 state,
