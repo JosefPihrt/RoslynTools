@@ -144,7 +144,6 @@ namespace Roslynator.Testing
             }
         }
 
-        //TODO: VerifyDiagnosticWithFixAsync
         public async Task VerifyDiagnosticAndFixAsync(
             DiagnosticTestState state,
             TestOptions options = null,
@@ -154,7 +153,6 @@ namespace Roslynator.Testing
             await VerifyFixAsync(state, options, cancellationToken);
         }
 
-        //TODO: VerifyDiagnosticWithoutFixAsync
         public async Task VerifyDiagnosticAndNoFixAsync(
             DiagnosticTestState state,
             TestOptions options = null,

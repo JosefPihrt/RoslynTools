@@ -7,7 +7,6 @@ using System.Linq;
 
 namespace Roslynator.Testing
 {
-    //TODO: AdditionalTestFile
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public readonly struct AdditionalFile
     {
