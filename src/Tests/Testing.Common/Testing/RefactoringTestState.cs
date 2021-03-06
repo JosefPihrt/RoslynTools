@@ -10,8 +10,12 @@ namespace Roslynator.Testing
 {
     public sealed class RefactoringTestState : TestState
     {
-        public RefactoringTestState(string source, string expectedSource, IEnumerable<TextSpan> spans, IEnumerable<AdditionalFile> additionalFiles = null)
-            : this(source, expectedSource, spans, additionalFiles, null, null)
+        public RefactoringTestState(
+            string source,
+            string expectedSource,
+            IEnumerable<TextSpan> spans,
+            IEnumerable<AdditionalFile> additionalFiles = null)
+            : this(source, expectedSource, spans, additionalFiles, null, null, null)
         {
         }
 
@@ -20,8 +24,9 @@ namespace Roslynator.Testing
             string expectedSource,
             IEnumerable<TextSpan> spans,
             IEnumerable<AdditionalFile> additionalFiles,
+            IEnumerable<KeyValuePair<string, ImmutableArray<TextSpan>>> expectedSpans,
             string codeActionTitle,
-            string equivalenceKey) : base(source, expectedSource, additionalFiles, codeActionTitle, equivalenceKey)
+            string equivalenceKey) : base(source, expectedSource, additionalFiles, expectedSpans, codeActionTitle, equivalenceKey)
         {
             Spans = spans?.ToImmutableArray() ?? ImmutableArray<TextSpan>.Empty;
         }
@@ -34,6 +39,7 @@ namespace Roslynator.Testing
                 expectedSource: other.ExpectedSource,
                 spans: other.Spans,
                 additionalFiles: other.AdditionalFiles,
+                expectedSpans: other.ExpectedSpans,
                 codeActionTitle: other.CodeActionTitle,
                 equivalenceKey: other.EquivalenceKey)
         {
@@ -44,6 +50,7 @@ namespace Roslynator.Testing
             string expectedSource,
             IEnumerable<TextSpan> spans,
             IEnumerable<AdditionalFile> additionalFiles,
+            IEnumerable<KeyValuePair<string, ImmutableArray<TextSpan>>> expectedSpans,
             string codeActionTitle,
             string equivalenceKey)
         {
@@ -52,6 +59,7 @@ namespace Roslynator.Testing
                 expectedSource: expectedSource,
                 spans: spans,
                 additionalFiles: additionalFiles,
+                expectedSpans: expectedSpans,
                 codeActionTitle: codeActionTitle,
                 equivalenceKey: equivalenceKey);
         }
@@ -61,6 +69,7 @@ namespace Roslynator.Testing
             string expectedSource = null,
             IEnumerable<TextSpan> spans = null,
             IEnumerable<AdditionalFile> additionalFiles = null,
+            IEnumerable<KeyValuePair<string, ImmutableArray<TextSpan>>> expectedSpans = null,
             string codeActionTitle = null,
             string equivalenceKey = null)
         {
@@ -69,6 +78,7 @@ namespace Roslynator.Testing
                 expectedSource: expectedSource ?? ExpectedSource,
                 spans: spans ?? Spans,
                 additionalFiles: additionalFiles ?? AdditionalFiles,
+                expectedSpans: expectedSpans ?? ExpectedSpans,
                 codeActionTitle: codeActionTitle ?? CodeActionTitle,
                 equivalenceKey: equivalenceKey ?? EquivalenceKey);
         }

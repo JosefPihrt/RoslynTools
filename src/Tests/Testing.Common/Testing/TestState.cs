@@ -2,13 +2,15 @@
 
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
+using Microsoft.CodeAnalysis.Text;
 
 namespace Roslynator.Testing
 {
     public abstract class TestState
     {
         protected TestState(string source, string expectedSource, IEnumerable<AdditionalFile> additionalFiles = null)
-            : this(source, expectedSource, additionalFiles, null, null)
+            : this(source, expectedSource, additionalFiles, null, null, null)
         {
         }
 
@@ -16,6 +18,7 @@ namespace Roslynator.Testing
             string source,
             string expectedSource,
             IEnumerable<AdditionalFile> additionalFiles,
+            IEnumerable<KeyValuePair<string, ImmutableArray<TextSpan>>> expectedSpans,
             string codeActionTitle,
             string equivalenceKey)
         {
@@ -24,6 +27,7 @@ namespace Roslynator.Testing
             AdditionalFiles = additionalFiles?.ToImmutableArray() ?? ImmutableArray<AdditionalFile>.Empty;
             CodeActionTitle = codeActionTitle;
             EquivalenceKey = equivalenceKey;
+            ExpectedSpans = expectedSpans?.ToImmutableDictionary(f => f.Key, f => f.Value) ?? ImmutableDictionary<string, ImmutableArray<TextSpan>>.Empty;
         }
 
         protected abstract TestState CommonWithSource(string source);
@@ -51,6 +55,8 @@ namespace Roslynator.Testing
         public string ExpectedSource { get; protected set; }
 
         public ImmutableArray<AdditionalFile> AdditionalFiles { get; protected set; }
+
+        public ImmutableDictionary<string, ImmutableArray<TextSpan>> ExpectedSpans { get; }
 
         public string CodeActionTitle { get; protected set; }
 

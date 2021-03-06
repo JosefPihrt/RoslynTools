@@ -13,16 +13,17 @@ namespace Roslynator.Testing
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public readonly struct TestCode
     {
-        internal TestCode(string value, ImmutableArray<TextSpan> spans)
-            : this(value, null, spans)
+        internal TestCode(string value, ImmutableArray<TextSpan> spans, ImmutableArray<TextSpan> additionalSpans)
+            : this(value, null, spans, additionalSpans)
         {
         }
 
-        internal TestCode(string value, string expectedValue, ImmutableArray<TextSpan> spans)
+        internal TestCode(string value, string expectedValue, ImmutableArray<TextSpan> spans, ImmutableArray<TextSpan> additionalSpans)
         {
             Value = value;
             ExpectedValue = expectedValue;
             Spans = spans;
+            AdditionalSpans = (additionalSpans.IsDefault) ? ImmutableArray<TextSpan>.Empty : additionalSpans;
         }
 
         /// <summary>
@@ -40,6 +41,8 @@ namespace Roslynator.Testing
         /// </summary>
         public ImmutableArray<TextSpan> Spans { get; }
 
+        public ImmutableArray<TextSpan> AdditionalSpans { get; }
+
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private string DebuggerDisplay => Value;
 
@@ -49,7 +52,13 @@ namespace Roslynator.Testing
         /// <param name="value"></param>
         public static TestCode Parse(string value)
         {
-            return TextProcessor.FindSpansAndRemove(value);
+            (string source, ImmutableArray<TextSpan> spans) = TextProcessor.FindSpansAndRemove(value);
+
+            (string source2, ImmutableDictionary<string, ImmutableArray<TextSpan>> annotatedSpans) = TextProcessor.FindAnnotatedSpansAndRemove(source);
+
+            ImmutableArray<TextSpan> additionalSpans = annotatedSpans.GetValueOrDefault("a");
+
+            return new TestCode(source2, spans, additionalSpans);
         }
 
         /// <summary>
@@ -63,7 +72,13 @@ namespace Roslynator.Testing
             string replacement1,
             string replacement2 = null)
         {
-            return TextProcessor.FindSpansAndReplace(value, replacement1, replacement2);
+            (string source, string expected, ImmutableArray<TextSpan> spans) = TextProcessor.FindSpansAndReplace(value, replacement1, replacement2);
+
+            (string source2, ImmutableDictionary<string, ImmutableArray<TextSpan>> annotatedSpans) = TextProcessor.FindAnnotatedSpansAndRemove(source);
+
+            ImmutableArray<TextSpan> additionalSpans = annotatedSpans.GetValueOrDefault("a");
+
+            return new TestCode(source2, expected, spans, additionalSpans);
         }
     }
 }

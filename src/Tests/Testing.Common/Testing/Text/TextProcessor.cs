@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis.Text;
 using Roslynator.Text;
 
@@ -12,7 +13,53 @@ namespace Roslynator.Testing.Text
 {
     internal static class TextProcessor
     {
-        public static TestCode FindSpansAndRemove(string text)
+        private static readonly Regex _annotatedSpanRegex = new Regex(@"(?s)\{\|(?<identifier>[^:]+):(?<content>.*?)\|\}");
+
+        public static (string text, ImmutableDictionary<string, ImmutableArray<TextSpan>>) FindAnnotatedSpansAndRemove(string text)
+        {
+            int offset = 0;
+            int lastPos = 0;
+
+            Match match = _annotatedSpanRegex.Match(text);
+
+            if (match.Success)
+            {
+                StringBuilder sb = StringBuilderCache.GetInstance(text.Length);
+
+                ImmutableDictionary<string, List<TextSpan>>.Builder dic = ImmutableDictionary.CreateBuilder<string, List<TextSpan>>();
+
+                do
+                {
+                    Group content = match.Groups["content"];
+
+                    sb.Append(text, lastPos, match.Index);
+                    sb.Append(content.Value);
+
+                    string identifier = match.Groups["identifier"].Value;
+                    if (!dic.TryGetValue(identifier, out List<TextSpan> spans))
+                    {
+                        spans = new List<TextSpan>();
+                        dic[identifier] = spans;
+                    }
+
+                    spans.Add(new TextSpan(match.Index - offset, content.Length));
+
+                    lastPos = match.Index + match.Length;
+                    offset += match.Length - content.Length;
+
+                    match = match.NextMatch();
+
+                } while (match.Success);
+
+                sb.Append(text, lastPos, text.Length - lastPos);
+
+                return (StringBuilderCache.GetStringAndFree(sb), dic.ToImmutableDictionary(f => f.Key, f => f.Value.ToImmutableArray()));
+            }
+
+            return (text, ImmutableDictionary<string, ImmutableArray<TextSpan>>.Empty);
+        }
+
+        public static (string, ImmutableArray<TextSpan>) FindSpansAndRemove(string text)
         {
             StringBuilder sb = StringBuilderCache.GetInstance(text.Length);
 
@@ -108,6 +155,7 @@ namespace Roslynator.Testing.Text
 
                             break;
                         }
+
                 }
 
                 column++;
@@ -124,7 +172,7 @@ namespace Roslynator.Testing.Text
 
             spans?.Sort(LinePositionSpanInfoComparer.Index);
 
-            return new TestCode(
+            return (
                 StringBuilderCache.GetStringAndFree(sb),
                 spans?.Select(f => f.Span).ToImmutableArray() ?? ImmutableArray<TextSpan>.Empty);
 
@@ -163,35 +211,35 @@ namespace Roslynator.Testing.Text
             }
         }
 
-        public static TestCode FindSpansAndReplace(
-            string source,
+        public static (string source, string expected, ImmutableArray<TextSpan> spans) FindSpansAndReplace(
+            string input,
             string replacement1,
             string replacement2 = null)
         {
-            TestCode code = FindSpansAndRemove(source);
+            (string source, ImmutableArray<TextSpan> spans) = FindSpansAndRemove(input);
 
-            if (code.Spans.Length == 0)
+            if (spans.Length == 0)
                 throw new InvalidOperationException("Text contains no span.");
 
-            if (code.Spans.Length > 1)
+            if (spans.Length > 1)
                 throw new InvalidOperationException("Text contains more than one span.");
 
-            string expected2 = (replacement2 != null)
-                ? code.Value.Remove(code.Spans[0].Start) + replacement2 + code.Value.Substring(code.Spans[0].End)
+            string expected = (replacement2 != null)
+                ? source.Remove(spans[0].Start) + replacement2 + source.Substring(spans[0].End)
                 : null;
 
             string source2 = replacement1;
 
-            TestCode code2 = FindSpansAndRemove(replacement1);
+            (string _, ImmutableArray<TextSpan> spans2) = FindSpansAndRemove(replacement1);
 
-            if (code2.Spans.Length == 0)
+            if (spans2.Length == 0)
                 source2 = "[|" + replacement1 + "|]";
 
-            source2 = code.Value.Remove(code.Spans[0].Start) + source2 + code.Value.Substring(code.Spans[0].End);
+            source2 = source.Remove(spans[0].Start) + source2 + source.Substring(spans[0].End);
 
-            code = FindSpansAndRemove(source2);
+            (string source3, ImmutableArray<TextSpan> spans3) = FindSpansAndRemove(source2);
 
-            return new TestCode(code.Value, expected2, code.Spans);
+            return (source3, expected, spans3);
         }
     }
 }

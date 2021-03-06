@@ -2,6 +2,7 @@
 
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using Microsoft.CodeAnalysis.Text;
 
 #pragma warning disable RCS1223
 
@@ -9,8 +10,12 @@ namespace Roslynator.Testing
 {
     public sealed class CompilerDiagnosticFixTestState : TestState
     {
-        public CompilerDiagnosticFixTestState(string diagnosticId, string source, string expectedSource, IEnumerable<AdditionalFile> additionalFiles = null)
-            : this(diagnosticId, source, expectedSource, additionalFiles, null, null)
+        public CompilerDiagnosticFixTestState(
+            string diagnosticId,
+            string source,
+            string expectedSource,
+            IEnumerable<AdditionalFile> additionalFiles = null)
+            : this(diagnosticId, source, expectedSource, additionalFiles, null, null, null)
         {
         }
 
@@ -19,8 +24,9 @@ namespace Roslynator.Testing
             string source,
             string expectedSource,
             IEnumerable<AdditionalFile> additionalFiles,
+            IEnumerable<KeyValuePair<string, ImmutableArray<TextSpan>>> expectedSpans,
             string codeActionTitle,
-            string equivalenceKey) : base(source, expectedSource, additionalFiles, codeActionTitle, equivalenceKey)
+            string equivalenceKey) : base(source, expectedSource, additionalFiles, expectedSpans, codeActionTitle, equivalenceKey)
         {
             DiagnosticId = diagnosticId;
         }
@@ -31,6 +37,7 @@ namespace Roslynator.Testing
                 source: other.Source,
                 expectedSource: other.ExpectedSource,
                 additionalFiles: other.AdditionalFiles,
+                expectedSpans: other.ExpectedSpans,
                 codeActionTitle: other.CodeActionTitle,
                 equivalenceKey: other.EquivalenceKey)
         {
@@ -43,6 +50,7 @@ namespace Roslynator.Testing
             string source,
             string expectedSource,
             IEnumerable<AdditionalFile> additionalFiles,
+            IEnumerable<KeyValuePair<string, ImmutableArray<TextSpan>>> expectedSpans,
             string codeActionTitle,
             string equivalenceKey)
         {
@@ -51,6 +59,7 @@ namespace Roslynator.Testing
                 source: source,
                 expectedSource: expectedSource,
                 additionalFiles: additionalFiles,
+                expectedSpans: expectedSpans,
                 codeActionTitle: codeActionTitle,
                 equivalenceKey: equivalenceKey);
         }
@@ -60,6 +69,7 @@ namespace Roslynator.Testing
             string source = null,
             string expectedSource = null,
             IEnumerable<AdditionalFile> additionalFiles = null,
+            IEnumerable<KeyValuePair<string, ImmutableArray<TextSpan>>> expectedSpans = null,
             string codeActionTitle = null,
             string equivalenceKey = null)
         {
@@ -68,6 +78,7 @@ namespace Roslynator.Testing
                 source: source ?? Source,
                 expectedSource: expectedSource ?? ExpectedSource,
                 additionalFiles: additionalFiles ?? AdditionalFiles,
+                expectedSpans: expectedSpans ?? ExpectedSpans,
                 codeActionTitle: codeActionTitle ?? CodeActionTitle,
                 equivalenceKey: equivalenceKey ?? EquivalenceKey);
         }

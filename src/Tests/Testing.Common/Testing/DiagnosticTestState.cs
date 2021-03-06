@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 
@@ -18,8 +19,8 @@ namespace Roslynator.Testing
             string expectedSource,
             DiagnosticDescriptor descriptor,
             IEnumerable<TextSpan> spans,
-            IEnumerable<AdditionalFile> additionalFiles = null)
-            : this(source, expectedSource, descriptor, spans, additionalFiles, null, null, null, null)
+            IEnumerable<TextSpan> additionalSpans = null)
+            : this(source, expectedSource, descriptor, spans, additionalSpans, null, null, null, null, null, null)
         {
         }
 
@@ -28,16 +29,25 @@ namespace Roslynator.Testing
             string expectedSource,
             DiagnosticDescriptor descriptor,
             IEnumerable<TextSpan> spans,
+            IEnumerable<TextSpan> additionalSpans,
             IEnumerable<AdditionalFile> additionalFiles,
             string diagnosticMessage,
             IFormatProvider formatProvider,
+            IEnumerable<KeyValuePair<string, ImmutableArray<TextSpan>>> expectedSpans,
             string codeActionTitle,
-            string equivalenceKey) : base(source, expectedSource, additionalFiles, codeActionTitle, equivalenceKey)
+            string equivalenceKey) : base(source, expectedSource, additionalFiles, expectedSpans, codeActionTitle, equivalenceKey)
         {
             Descriptor = descriptor;
             Spans = spans?.ToImmutableArray() ?? ImmutableArray<TextSpan>.Empty;
+            AdditionalSpans = additionalSpans?.ToImmutableArray() ?? ImmutableArray<TextSpan>.Empty;
             DiagnosticMessage = diagnosticMessage;
             FormatProvider = formatProvider;
+
+            if (Spans.Length > 1
+                && !AdditionalSpans.IsEmpty)
+            {
+                throw new ArgumentException("", nameof(additionalSpans));
+            }
         }
 
         private DiagnosticTestState(DiagnosticTestState other)
@@ -46,9 +56,11 @@ namespace Roslynator.Testing
                 expectedSource: other.ExpectedSource,
                 descriptor: other.Descriptor,
                 spans: other.Spans,
+                additionalSpans: other.AdditionalSpans,
                 additionalFiles: other.AdditionalFiles,
                 diagnosticMessage: other.DiagnosticMessage,
                 formatProvider: other.FormatProvider,
+                expectedSpans: other.ExpectedSpans,
                 codeActionTitle: other.CodeActionTitle,
                 equivalenceKey: other.EquivalenceKey)
         {
@@ -57,6 +69,8 @@ namespace Roslynator.Testing
         public DiagnosticDescriptor Descriptor { get; private set; }
 
         public ImmutableArray<TextSpan> Spans { get; private set; }
+
+        public ImmutableArray<TextSpan> AdditionalSpans { get; private set; }
 
         public string DiagnosticMessage { get; private set; }
 
@@ -68,7 +82,8 @@ namespace Roslynator.Testing
                 Spans,
                 span => Diagnostic.Create(
                     Descriptor,
-                    Location.Create(tree, span)));
+                    Location.Create(tree, span),
+                    additionalLocations: AdditionalSpans.Select(span => Location.Create(tree, span)).ToImmutableArray()));
         }
 
         public DiagnosticTestState Update(
@@ -76,7 +91,9 @@ namespace Roslynator.Testing
             string expectedSource,
             DiagnosticDescriptor descriptor,
             IEnumerable<TextSpan> spans,
+            IEnumerable<TextSpan> additionalSpans,
             IEnumerable<AdditionalFile> additionalFiles,
+            IEnumerable<KeyValuePair<string, ImmutableArray<TextSpan>>> expectedSpans,
             string diagnosticMessage,
             IFormatProvider formatProvider,
             string codeActionTitle,
@@ -87,9 +104,11 @@ namespace Roslynator.Testing
                 expectedSource: expectedSource,
                 descriptor: descriptor,
                 spans: spans,
+                additionalSpans: additionalSpans,
                 additionalFiles: additionalFiles,
                 diagnosticMessage: diagnosticMessage,
                 formatProvider: formatProvider,
+                expectedSpans: expectedSpans,
                 codeActionTitle: codeActionTitle,
                 equivalenceKey: equivalenceKey);
         }
@@ -99,9 +118,11 @@ namespace Roslynator.Testing
             string expectedSource = null,
             DiagnosticDescriptor descriptor = null,
             IEnumerable<TextSpan> spans = null,
+            IEnumerable<TextSpan> additionalSpans = null,
             IEnumerable<AdditionalFile> additionalFiles = null,
             string diagnosticMessage = null,
             IFormatProvider formatProvider = null,
+            IEnumerable<KeyValuePair<string, ImmutableArray<TextSpan>>> expectedSpans = null,
             string codeActionTitle = null,
             string equivalenceKey = null)
         {
@@ -110,9 +131,11 @@ namespace Roslynator.Testing
                 expectedSource: expectedSource ?? ExpectedSource,
                 descriptor: descriptor ?? Descriptor,
                 spans: spans ?? Spans,
+                additionalSpans: additionalSpans ?? AdditionalSpans,
                 additionalFiles: additionalFiles ?? AdditionalFiles,
                 diagnosticMessage: diagnosticMessage ?? DiagnosticMessage,
                 formatProvider: formatProvider ?? FormatProvider,
+                expectedSpans: expectedSpans ?? ExpectedSpans,
                 codeActionTitle: codeActionTitle ?? CodeActionTitle,
                 equivalenceKey: equivalenceKey ?? EquivalenceKey);
         }
@@ -160,6 +183,11 @@ namespace Roslynator.Testing
         public DiagnosticTestState WithSpans(IEnumerable<TextSpan> spans)
         {
             return new DiagnosticTestState(this) { Spans = spans?.ToImmutableArray() ?? ImmutableArray<TextSpan>.Empty };
+        }
+
+        public DiagnosticTestState WithAdditionalSpans(IEnumerable<TextSpan> additionalSpans)
+        {
+            return new DiagnosticTestState(this) { AdditionalSpans = additionalSpans?.ToImmutableArray() ?? ImmutableArray<TextSpan>.Empty };
         }
 
         new public DiagnosticTestState WithAdditionalFiles(IEnumerable<AdditionalFile> additionalFiles)

@@ -42,12 +42,14 @@ namespace Roslynator.Testing.CSharp
 
             Debug.Assert(code.Spans.Length == 0);
 
+            //TODO: expectedspans
             var state = new CompilerDiagnosticFixTestState(
                 DiagnosticId,
                 code.Value,
                 code.ExpectedValue,
                 AdditionalFile.CreateRange(additionalFiles),
-                null,
+                expectedSpans: null,
+                codeActionTitle: null,
                 equivalenceKey);
 
             await VerifyFixAsync(
@@ -73,12 +75,14 @@ namespace Roslynator.Testing.CSharp
             TestOptions options = null,
             CancellationToken cancellationToken = default)
         {
+            //TODO: expectedspans
             var state = new CompilerDiagnosticFixTestState(
                 DiagnosticId,
                 source,
                 expected,
                 AdditionalFile.CreateRange(additionalFiles),
-                null,
+                expectedSpans: null,
+                codeActionTitle: null,
                 equivalenceKey: equivalenceKey);
 
             await VerifyFixAsync(
@@ -105,9 +109,10 @@ namespace Roslynator.Testing.CSharp
             var state = new CompilerDiagnosticFixTestState(
                 DiagnosticId,
                 source,
-                null,
+                expectedSource: null,
                 AdditionalFile.CreateRange(additionalFiles),
-                null,
+                expectedSpans: null,
+                codeActionTitle: null,
                 equivalenceKey: equivalenceKey);
 
             await VerifyNoFixAsync(

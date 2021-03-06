@@ -38,12 +38,14 @@ namespace Roslynator.Testing.CSharp
 
             Debug.Assert(code.Spans.Length > 0);
 
+            //TODO: expectedspans
             var state = new RefactoringTestState(
                 code.Value,
                 expected,
                 code.Spans.OrderByDescending(f => f.Start).ToImmutableArray(),
                 AdditionalFile.CreateRange(additionalFiles),
-                null,
+                expectedSpans: null,
+                codeActionTitle: null,
                 equivalenceKey);
 
             await VerifyRefactoringAsync(
@@ -75,12 +77,14 @@ namespace Roslynator.Testing.CSharp
 
             Debug.Assert(code.Spans.Length > 0);
 
+            //TODO: expectedspans
             var state = new RefactoringTestState(
                 code.Value,
                 code.ExpectedValue,
                 code.Spans.OrderByDescending(f => f.Start).ToImmutableArray(),
                 AdditionalFile.CreateRange(additionalFiles),
-                null,
+                expectedSpans: null,
+                codeActionTitle: null,
                 equivalenceKey);
 
             await VerifyRefactoringAsync(
@@ -108,6 +112,7 @@ namespace Roslynator.Testing.CSharp
                 code.Value,
                 null,
                 code.Spans,
+                null,
                 null,
                 null,
                 equivalenceKey);
