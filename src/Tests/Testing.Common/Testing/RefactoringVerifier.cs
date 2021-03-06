@@ -39,7 +39,7 @@ namespace Roslynator.Testing
 
                 using (Workspace workspace = new AdhocWorkspace())
                 {
-                    (Document document, ImmutableArray<ExpectedDocument> expectedDocuments) = ProjectHelpers.CreateDocument(workspace.CurrentSolution, state, options);
+                    (Document document, ImmutableArray<ExpectedDocument> expectedDocuments) = CreateDocument(workspace.CurrentSolution, state, options);
 
                     SemanticModel semanticModel = await document.GetSemanticModelAsync(cancellationToken);
 
@@ -98,7 +98,7 @@ namespace Roslynator.Testing
 
             using (Workspace workspace = new AdhocWorkspace())
             {
-                (Document document, ImmutableArray<ExpectedDocument> expectedDocuments) = ProjectHelpers.CreateDocument(workspace.CurrentSolution, state, options);
+                (Document document, ImmutableArray<ExpectedDocument> expectedDocuments) = CreateDocument(workspace.CurrentSolution, state, options);
 
                 SemanticModel semanticModel = await document.GetSemanticModelAsync(cancellationToken);
 

@@ -3,14 +3,14 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 
-#pragma warning disable RCS1223
-
 namespace Roslynator.Testing
 {
+    [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public sealed class DiagnosticTestState : TestState
     {
         public DiagnosticTestState(
@@ -18,25 +18,15 @@ namespace Roslynator.Testing
             string expectedSource,
             DiagnosticDescriptor descriptor,
             IEnumerable<TextSpan> spans,
-            IEnumerable<TextSpan> additionalSpans = null)
-            : this(source, expectedSource, descriptor, spans, additionalSpans, null, null, null, null, null, null)
+            IEnumerable<TextSpan> additionalSpans = null,
+            IEnumerable<AdditionalFile> additionalFiles = null,
+            string diagnosticMessage = null,
+            IFormatProvider formatProvider = null,
+            IEnumerable<KeyValuePair<string, ImmutableArray<TextSpan>>> expectedSpans = null,
+            string codeActionTitle = null,
+            string equivalenceKey = null) : base(source, expectedSource, additionalFiles, expectedSpans, codeActionTitle, equivalenceKey)
         {
-        }
-
-        public DiagnosticTestState(
-            string source,
-            string expectedSource,
-            DiagnosticDescriptor descriptor,
-            IEnumerable<TextSpan> spans,
-            IEnumerable<TextSpan> additionalSpans,
-            IEnumerable<AdditionalFile> additionalFiles,
-            string diagnosticMessage,
-            IFormatProvider formatProvider,
-            IEnumerable<KeyValuePair<string, ImmutableArray<TextSpan>>> expectedSpans,
-            string codeActionTitle,
-            string equivalenceKey) : base(source, expectedSource, additionalFiles, expectedSpans, codeActionTitle, equivalenceKey)
-        {
-            Descriptor = descriptor;
+            Descriptor = descriptor ?? throw new ArgumentNullException(nameof(descriptor));
             Spans = spans?.ToImmutableArray() ?? ImmutableArray<TextSpan>.Empty;
             AdditionalSpans = additionalSpans?.ToImmutableArray() ?? ImmutableArray<TextSpan>.Empty;
             DiagnosticMessage = diagnosticMessage;
@@ -75,6 +65,9 @@ namespace Roslynator.Testing
 
         public IFormatProvider FormatProvider { get; private set; }
 
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        private string DebuggerDisplay => $"{Descriptor.Id}  {Source}";
+
         internal ImmutableArray<Diagnostic> GetDiagnostics(SyntaxTree tree)
         {
             return ImmutableArray.CreateRange(
@@ -112,33 +105,6 @@ namespace Roslynator.Testing
                 equivalenceKey: equivalenceKey);
         }
 
-        internal DiagnosticTestState MaybeUpdate(
-            string source = null,
-            string expectedSource = null,
-            DiagnosticDescriptor descriptor = null,
-            IEnumerable<TextSpan> spans = null,
-            IEnumerable<TextSpan> additionalSpans = null,
-            IEnumerable<AdditionalFile> additionalFiles = null,
-            string diagnosticMessage = null,
-            IFormatProvider formatProvider = null,
-            IEnumerable<KeyValuePair<string, ImmutableArray<TextSpan>>> expectedSpans = null,
-            string codeActionTitle = null,
-            string equivalenceKey = null)
-        {
-            return new DiagnosticTestState(
-                source: source ?? Source,
-                expectedSource: expectedSource ?? ExpectedSource,
-                descriptor: descriptor ?? Descriptor,
-                spans: spans ?? Spans,
-                additionalSpans: additionalSpans ?? AdditionalSpans,
-                additionalFiles: additionalFiles ?? AdditionalFiles,
-                diagnosticMessage: diagnosticMessage ?? DiagnosticMessage,
-                formatProvider: formatProvider ?? FormatProvider,
-                expectedSpans: expectedSpans ?? ExpectedSpans,
-                codeActionTitle: codeActionTitle ?? CodeActionTitle,
-                equivalenceKey: equivalenceKey ?? EquivalenceKey);
-        }
-
         protected override TestState CommonWithSource(string source)
         {
             return WithSource(source);
@@ -166,7 +132,7 @@ namespace Roslynator.Testing
 
         new public DiagnosticTestState WithSource(string source)
         {
-            return new DiagnosticTestState(this) { Source = source };
+            return new DiagnosticTestState(this) { Source = source ?? throw new ArgumentNullException(nameof(source)) };
         }
 
         new public DiagnosticTestState WithExpectedSource(string expectedSource)
@@ -176,7 +142,7 @@ namespace Roslynator.Testing
 
         public DiagnosticTestState WithDescriptor(DiagnosticDescriptor descriptor)
         {
-            return new DiagnosticTestState(this) { Descriptor = descriptor };
+            return new DiagnosticTestState(this) { Descriptor = descriptor ?? throw new ArgumentNullException(nameof(descriptor)) };
         }
 
         public DiagnosticTestState WithSpans(IEnumerable<TextSpan> spans)

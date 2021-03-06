@@ -11,9 +11,6 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
-using Microsoft.CodeAnalysis.Formatting;
-using Microsoft.CodeAnalysis.Simplification;
-using Microsoft.CodeAnalysis.Text;
 
 namespace Roslynator.Testing
 {
@@ -48,7 +45,7 @@ namespace Roslynator.Testing
 
             using (Workspace workspace = new AdhocWorkspace())
             {
-                (Document document, ImmutableArray<ExpectedDocument> expectedDocuments) = ProjectHelpers.CreateDocument(workspace.CurrentSolution, state, options);
+                (Document document, ImmutableArray<ExpectedDocument> expectedDocuments) = CreateDocument(workspace.CurrentSolution, state, options);
 
                 SyntaxTree tree = await document.GetSyntaxTreeAsync();
 
@@ -118,7 +115,7 @@ namespace Roslynator.Testing
 
             using (Workspace workspace = new AdhocWorkspace())
             {
-                (Document document, ImmutableArray<ExpectedDocument> expectedDocuments) = ProjectHelpers.CreateDocument(workspace.CurrentSolution, state, options);
+                (Document document, ImmutableArray<ExpectedDocument> expectedDocuments) = CreateDocument(workspace.CurrentSolution, state, options);
 
                 SyntaxTree tree = await document.GetSyntaxTreeAsync();
 
@@ -180,7 +177,7 @@ namespace Roslynator.Testing
 
             using (Workspace workspace = new AdhocWorkspace())
             {
-                (Document document, ImmutableArray<ExpectedDocument> expectedDocuments) = ProjectHelpers.CreateDocument(workspace.CurrentSolution, state, options);
+                (Document document, ImmutableArray<ExpectedDocument> expectedDocuments) = CreateDocument(workspace.CurrentSolution, state, options);
 
                 Project project = document.Project;
 
@@ -310,7 +307,7 @@ namespace Roslynator.Testing
 
             using (Workspace workspace = new AdhocWorkspace())
             {
-                (Document document, ImmutableArray<ExpectedDocument> expectedDocuments) = ProjectHelpers.CreateDocument(workspace.CurrentSolution, state, options);
+                (Document document, ImmutableArray<ExpectedDocument> expectedDocuments) = CreateDocument(workspace.CurrentSolution, state, options);
 
                 Compilation compilation = await document.Project.GetCompilationAsync(cancellationToken);
 
@@ -386,8 +383,8 @@ namespace Roslynator.Testing
                         actualCount++;
 
                         VerifyDiagnostic(
-                            actualEnumerator.Current,
                             expectedDiagnostic,
+                            actualEnumerator.Current,
                             state.DiagnosticMessage,
                             state.FormatProvider,
                             checkAdditionalLocations: !state.AdditionalSpans.IsEmpty);
@@ -427,49 +424,49 @@ namespace Roslynator.Testing
         }
 
         private void VerifyDiagnostic(
-            Diagnostic actualDiagnostic,
             Diagnostic expectedDiagnostic,
+            Diagnostic actualDiagnostic,
             string message,
             IFormatProvider formatProvider,
             bool checkAdditionalLocations = false)
         {
-            if (actualDiagnostic.Id != expectedDiagnostic.Id)
+            if (expectedDiagnostic.Id != actualDiagnostic.Id)
                 Assert.True(false, $"Diagnostic's ID expected to be \"{expectedDiagnostic.Id}\", actual: \"{actualDiagnostic.Id}\"{GetMessage()}");
 
-            VerifyLocation(actualDiagnostic.Location, expectedDiagnostic.Location);
+            VerifyLocation(expectedDiagnostic.Location, actualDiagnostic.Location);
 
             if (checkAdditionalLocations)
-                VerifyAdditionalLocations(actualDiagnostic.AdditionalLocations, expectedDiagnostic.AdditionalLocations);
+                VerifyAdditionalLocations(expectedDiagnostic.AdditionalLocations, actualDiagnostic.AdditionalLocations);
 
             if (message != null)
                 Assert.Equal(message, actualDiagnostic.GetMessage(formatProvider));
 
             void VerifyLocation(
-                Location actualLocation,
-                Location expectedLocation)
+                Location expectedLocation,
+                Location actualLocation)
             {
-                VerifyFileLinePositionSpan(actualLocation.GetLineSpan(), expectedLocation.GetLineSpan());
+                VerifyFileLinePositionSpan(expectedLocation.GetLineSpan(), actualLocation.GetLineSpan());
             }
 
             void VerifyAdditionalLocations(
-                IReadOnlyList<Location> actual,
-                IReadOnlyList<Location> expected)
+                IReadOnlyList<Location> expected,
+                IReadOnlyList<Location> actual)
             {
-                int actualCount = actual.Count;
                 int expectedCount = expected.Count;
+                int actualCount = actual.Count;
 
-                if (actualCount != expectedCount)
+                if (expectedCount != actualCount)
                     Assert.True(false, $"{expectedCount} additional location(s) expected, actual: {actualCount}{GetMessage()}");
 
                 for (int j = 0; j < actualCount; j++)
-                    VerifyLocation(actual[j], expected[j]);
+                    VerifyLocation(expected[j], actual[j]);
             }
 
             void VerifyFileLinePositionSpan(
-                FileLinePositionSpan actual,
-                FileLinePositionSpan expected)
+                FileLinePositionSpan expected,
+                FileLinePositionSpan actual)
             {
-                if (actual.Path != expected.Path)
+                if (expected.Path != actual.Path)
                     Assert.True(false, $"Diagnostic expected to be in file \"{expected.Path}\", actual: \"{actual.Path}\"{GetMessage()}");
 
                 string message = VerifyLinePositionSpan(expected.Span, actual.Span);

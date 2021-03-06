@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,8 +11,6 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
-using Microsoft.CodeAnalysis.Formatting;
-using Microsoft.CodeAnalysis.Simplification;
 using Microsoft.CodeAnalysis.Text;
 
 namespace Roslynator.Testing
@@ -156,8 +155,10 @@ namespace Roslynator.Testing
 
             Assert.Equal(state.ExpectedSource, actual);
 
-            if (!state.ExpectedSpans.IsEmpty)
-                VerifyAnnotations(state.ExpectedSpans, root, actual);
+            ImmutableDictionary<string, ImmutableArray<TextSpan>> expectedSpans = state.ExpectedSpans;
+
+            if (!expectedSpans.IsEmpty)
+                VerifyAnnotations(expectedSpans, root, actual);
         }
 
         private void VerifyAnnotations(
@@ -193,14 +194,15 @@ namespace Roslynator.Testing
                 }
             }
 
-            static string GetAnnotationKind(string annotationKind)
+            static string GetAnnotationKind(string value)
             {
-                return annotationKind switch
-                {
-                    "n" => "CodeAction_Navigation",
-                    "r" => RenameAnnotation.Kind,
-                    _ => annotationKind,
-                };
+                if (string.Equals(value, "n", StringComparison.OrdinalIgnoreCase))
+                    return "CodeAction_Navigation";
+
+                if (string.Equals(value, "r", StringComparison.OrdinalIgnoreCase))
+                    return RenameAnnotation.Kind;
+
+                return value;
             }
         }
 
@@ -215,19 +217,63 @@ namespace Roslynator.Testing
             LinePosition actual,
             string startOrEnd)
         {
-            int actualLine = actual.Line;
             int expectedLine = expected.Line;
+            int actualLine = actual.Line;
 
-            if (actualLine != expectedLine)
+            if (expectedLine != actualLine)
                 return $" expected to {startOrEnd} on line {expectedLine + 1}, actual: {actualLine + 1}";
 
-            int actualCharacter = actual.Character;
             int expectedCharacter = expected.Character;
+            int actualCharacter = actual.Character;
 
-            if (actualCharacter != expectedCharacter)
+            if (expectedCharacter != actualCharacter)
                 return $" expected to {startOrEnd} at column {expectedCharacter + 1}, actual: {actualCharacter + 1}";
 
             return null;
+        }
+
+        internal static (Document document, ImmutableArray<ExpectedDocument> expectedDocuments)
+            CreateDocument(Solution solution, TestState state, TestOptions options)
+        {
+            const string DefaultProjectName = "TestProject";
+
+            CompilationOptions compilationOptions = options.CompilationOptions;
+
+            Project project = solution
+                .AddProject(DefaultProjectName, DefaultProjectName, options.Language)
+                .WithMetadataReferences(options.MetadataReferences)
+                .WithCompilationOptions(compilationOptions)
+                .WithParseOptions(options.ParseOptions);
+
+            Document document = project.AddDocument(options.DocumentName, SourceText.From(state.Source));
+
+            ImmutableArray<ExpectedDocument>.Builder expectedDocuments = null;
+
+            ImmutableArray<AdditionalFile> additionalFiles = state.AdditionalFiles;
+
+            if (!additionalFiles.IsEmpty)
+            {
+                expectedDocuments = ImmutableArray.CreateBuilder<ExpectedDocument>();
+                project = document.Project;
+
+                for (int i = 0; i < additionalFiles.Length; i++)
+                {
+                    Document additionalDocument = project.AddDocument(AppendNumberToFileName(options.DocumentName, i + 2), SourceText.From(additionalFiles[i].Source));
+                    expectedDocuments.Add(new ExpectedDocument(additionalDocument.Id, additionalFiles[i].ExpectedSource));
+                    project = additionalDocument.Project;
+                }
+
+                document = project.GetDocument(document.Id);
+            }
+
+            return (document, expectedDocuments?.ToImmutableArray() ?? ImmutableArray<ExpectedDocument>.Empty);
+
+            static string AppendNumberToFileName(string fileName, int number)
+            {
+                int index = fileName.LastIndexOf(".");
+
+                return fileName.Insert(index, (number).ToString(CultureInfo.InvariantCulture));
+            }
         }
     }
 }

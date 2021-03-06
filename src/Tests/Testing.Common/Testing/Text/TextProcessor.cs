@@ -22,41 +22,41 @@ namespace Roslynator.Testing.Text
 
             Match match = _annotatedSpanRegex.Match(text);
 
-            if (match.Success)
+            if (!match.Success)
+                return (text, ImmutableDictionary<string, ImmutableArray<TextSpan>>.Empty);
+
+            StringBuilder sb = StringBuilderCache.GetInstance(text.Length);
+
+            ImmutableDictionary<string, List<TextSpan>>.Builder dic = ImmutableDictionary.CreateBuilder<string, List<TextSpan>>();
+
+            do
             {
-                StringBuilder sb = StringBuilderCache.GetInstance(text.Length);
+                Group content = match.Groups["content"];
 
-                ImmutableDictionary<string, List<TextSpan>>.Builder dic = ImmutableDictionary.CreateBuilder<string, List<TextSpan>>();
+                sb.Append(text, lastPos, match.Index);
+                sb.Append(content.Value);
 
-                do
+                string identifier = match.Groups["identifier"].Value;
+                if (!dic.TryGetValue(identifier, out List<TextSpan> spans))
                 {
-                    Group content = match.Groups["content"];
+                    spans = new List<TextSpan>();
+                    dic[identifier] = spans;
+                }
 
-                    sb.Append(text, lastPos, match.Index);
-                    sb.Append(content.Value);
+                spans.Add(new TextSpan(match.Index - offset, content.Length));
 
-                    string identifier = match.Groups["identifier"].Value;
-                    if (!dic.TryGetValue(identifier, out List<TextSpan> spans))
-                    {
-                        spans = new List<TextSpan>();
-                        dic[identifier] = spans;
-                    }
+                lastPos = match.Index + match.Length;
+                offset += match.Length - content.Length;
 
-                    spans.Add(new TextSpan(match.Index - offset, content.Length));
+                match = match.NextMatch();
 
-                    lastPos = match.Index + match.Length;
-                    offset += match.Length - content.Length;
+            } while (match.Success);
 
-                    match = match.NextMatch();
+            sb.Append(text, lastPos, text.Length - lastPos);
 
-                } while (match.Success);
-
-                sb.Append(text, lastPos, text.Length - lastPos);
-
-                return (StringBuilderCache.GetStringAndFree(sb), dic.ToImmutableDictionary(f => f.Key, f => f.Value.ToImmutableArray()));
-            }
-
-            return (text, ImmutableDictionary<string, ImmutableArray<TextSpan>>.Empty);
+            return (
+                StringBuilderCache.GetStringAndFree(sb),
+                dic.ToImmutableDictionary(f => f.Key, f => f.Value.ToImmutableArray()));
         }
 
         public static (string, ImmutableArray<TextSpan>) FindSpansAndRemove(string text)

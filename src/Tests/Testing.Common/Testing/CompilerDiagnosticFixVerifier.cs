@@ -42,7 +42,7 @@ namespace Roslynator.Testing
 
             using (Workspace workspace = new AdhocWorkspace())
             {
-                (Document document, ImmutableArray<ExpectedDocument> expectedDocuments) = ProjectHelpers.CreateDocument(workspace.CurrentSolution, state, options);
+                (Document document, ImmutableArray<ExpectedDocument> expectedDocuments) = CreateDocument(workspace.CurrentSolution, state, options);
 
                 Project project = document.Project;
 
@@ -74,7 +74,7 @@ namespace Roslynator.Testing
                         Assert.True(false, "Same diagnostics returned before and after the fix was applied.");
                     }
 
-                    Diagnostic diagnostic = FindDiagnostic(diagnostics);
+                    Diagnostic diagnostic = FindDiagnosticToFix(diagnostics);
 
                     if (diagnostic == null)
                         break;
@@ -118,7 +118,7 @@ namespace Roslynator.Testing
                     await VerifyAdditionalDocumentsAsync(document.Project, expectedDocuments, cancellationToken);
             }
 
-            Diagnostic FindDiagnostic(ImmutableArray<Diagnostic> diagnostics)
+            Diagnostic FindDiagnosticToFix(ImmutableArray<Diagnostic> diagnostics)
             {
                 Diagnostic match = null;
 
@@ -158,7 +158,7 @@ namespace Roslynator.Testing
 
             using (Workspace workspace = new AdhocWorkspace())
             {
-                (Document document, ImmutableArray<ExpectedDocument> expectedDocuments) = ProjectHelpers.CreateDocument(workspace.CurrentSolution, state, options);
+                (Document document, ImmutableArray<ExpectedDocument> expectedDocuments) = CreateDocument(workspace.CurrentSolution, state, options);
 
                 Compilation compilation = await document.Project.GetCompilationAsync(cancellationToken);
 

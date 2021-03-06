@@ -19,15 +19,6 @@ namespace Roslynator.Testing.CSharp
 
         public override CSharpTestOptions Options => DefaultCSharpTestOptions.Value;
 
-        /// <summary>
-        /// Verifies that a refactoring can be applied on a specified source code.
-        /// </summary>
-        /// <param name="source">A source code that should be tested. Tokens <c>[|</c> and <c>|]</c> represents start and end of selection respectively.</param>
-        /// <param name="expected"></param>
-        /// <param name="additionalFiles"></param>
-        /// <param name="equivalenceKey">Code action's equivalence key.</param>
-        /// <param name="options"></param>
-        /// <param name="cancellationToken"></param>
         public async Task VerifyRefactoringAsync(
             string source,
             string expected,
@@ -48,7 +39,6 @@ namespace Roslynator.Testing.CSharp
                 code.Spans.OrderByDescending(f => f.Start).ToImmutableArray(),
                 AdditionalFile.CreateRange(additionalFiles),
                 expectedSpans: expectedSpans,
-                codeActionTitle: null,
                 equivalenceKey);
 
             await VerifyRefactoringAsync(
@@ -57,16 +47,6 @@ namespace Roslynator.Testing.CSharp
                 cancellationToken: cancellationToken);
         }
 
-        /// <summary>
-        /// Verifies that a refactoring can be applied on a specified source code.
-        /// </summary>
-        /// <param name="source">Source text that contains placeholder <c>[||]</c> to be replaced with <paramref name="sourceData"/> and <paramref name="expectedData"/>.</param>
-        /// <param name="sourceData"></param>
-        /// <param name="expectedData"></param>
-        /// <param name="additionalFiles"></param>
-        /// <param name="equivalenceKey">Code action's equivalence key.</param>
-        /// <param name="options"></param>
-        /// <param name="cancellationToken"></param>
         public async Task VerifyRefactoringAsync(
             string source,
             string sourceData,
@@ -88,7 +68,6 @@ namespace Roslynator.Testing.CSharp
                 code.Spans.OrderByDescending(f => f.Start).ToImmutableArray(),
                 AdditionalFile.CreateRange(additionalFiles),
                 expectedSpans: expectedSpans,
-                codeActionTitle: null,
                 equivalenceKey);
 
             await VerifyRefactoringAsync(
@@ -97,13 +76,6 @@ namespace Roslynator.Testing.CSharp
                 cancellationToken: cancellationToken);
         }
 
-        /// <summary>
-        /// Verifies that a refactoring cannot be applied on a specified source code.
-        /// </summary>
-        /// <param name="source">A source code that should be tested. Tokens <c>[|</c> and <c>|]</c> represents start and end of selection respectively.</param>
-        /// <param name="equivalenceKey">Code action's equivalence key.</param>
-        /// <param name="options"></param>
-        /// <param name="cancellationToken"></param>
         public async Task VerifyNoRefactoringAsync(
             string source,
             string equivalenceKey = null,
@@ -114,12 +86,9 @@ namespace Roslynator.Testing.CSharp
 
             var state = new RefactoringTestState(
                 code.Value,
-                null,
+                expectedSource: null,
                 code.Spans,
-                null,
-                null,
-                null,
-                equivalenceKey);
+                equivalenceKey: equivalenceKey);
 
             await VerifyNoRefactoringAsync(
                 state,

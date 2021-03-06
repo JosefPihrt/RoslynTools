@@ -18,20 +18,10 @@ namespace Roslynator.Testing.CSharp
         where TAnalyzer : DiagnosticAnalyzer, new()
         where TFixProvider : CodeFixProvider, new()
     {
-        /// <summary>
-        /// Gets a <see cref="DiagnosticDescriptor"/> that describes diagnostic that should be verified.
-        /// </summary>
         public abstract DiagnosticDescriptor Descriptor { get; }
 
         public override CSharpTestOptions Options => DefaultCSharpTestOptions.Value;
 
-        /// <summary>
-        /// Verifies that specified source will produce diagnostic described with see <see cref="Descriptor"/>
-        /// </summary>
-        /// <param name="source">A source code that should be tested. Tokens <c>[|</c> and <c>|]</c> represents start and end of selection respectively.</param>
-        /// <param name="additionalFiles"></param>
-        /// <param name="options"></param>
-        /// <param name="cancellationToken"></param>
         public async Task VerifyDiagnosticAsync(
             string source,
             IEnumerable<string> additionalFiles = null,
@@ -44,16 +34,11 @@ namespace Roslynator.Testing.CSharp
 
             var state = new DiagnosticTestState(
                 code.Value,
-                null,
+                expectedSource: null,
                 Descriptor,
                 code.Spans,
                 code.AdditionalSpans,
-                AdditionalFile.CreateRange(additionalFiles),
-                null,
-                null,
-                null,
-                null,
-                null);
+                additionalFiles: AdditionalFile.CreateRange(additionalFiles));
 
             await VerifyDiagnosticAsync(
                 state,
@@ -61,14 +46,6 @@ namespace Roslynator.Testing.CSharp
                 cancellationToken: cancellationToken);
         }
 
-        /// <summary>
-        /// Verifies that specified source will produce diagnostic described with see <see cref="Descriptor"/>
-        /// </summary>
-        /// <param name="source">Source text that contains placeholder <c>[||]</c> to be replaced with <paramref name="sourceData"/>.</param>
-        /// <param name="sourceData"></param>
-        /// <param name="additionalFiles"></param>
-        /// <param name="options"></param>
-        /// <param name="cancellationToken"></param>
         public async Task VerifyDiagnosticAsync(
             string source,
             string sourceData,
@@ -82,16 +59,11 @@ namespace Roslynator.Testing.CSharp
 
             var state = new DiagnosticTestState(
                 source,
-                null,
+                expectedSource: null,
                 Descriptor,
                 code.Spans,
                 code.AdditionalSpans,
-                AdditionalFile.CreateRange(additionalFiles),
-                null,
-                null,
-                null,
-                null,
-                null);
+                additionalFiles: AdditionalFile.CreateRange(additionalFiles));
 
             await VerifyDiagnosticAsync(
                 state,
@@ -108,16 +80,10 @@ namespace Roslynator.Testing.CSharp
         {
             var state = new DiagnosticTestState(
                 source,
-                null,
+                expectedSource: null,
                 Descriptor,
                 ImmutableArray.Create(span),
-                null,
-                AdditionalFile.CreateRange(additionalFiles),
-                null,
-                null,
-                null,
-                null,
-                null);
+                additionalFiles: AdditionalFile.CreateRange(additionalFiles));
 
             await VerifyDiagnosticAsync(
                 state,
@@ -134,16 +100,10 @@ namespace Roslynator.Testing.CSharp
         {
             var state = new DiagnosticTestState(
                 source,
-                null,
+                expectedSource: null,
                 Descriptor,
                 spans,
-                null,
-                AdditionalFile.CreateRange(additionalFiles),
-                null,
-                null,
-                null,
-                null,
-                null);
+                additionalFiles: AdditionalFile.CreateRange(additionalFiles));
 
             await VerifyDiagnosticAsync(
                 state,
@@ -151,14 +111,6 @@ namespace Roslynator.Testing.CSharp
                 cancellationToken: cancellationToken);
         }
 
-        /// <summary>
-        /// Verifies that specified source will not produce diagnostic described with see <see cref="Descriptor"/>
-        /// </summary>
-        /// <param name="source">Source text that contains placeholder <c>[||]</c> to be replaced with <paramref name="sourceData"/>.</param>
-        /// <param name="sourceData"></param>
-        /// <param name="additionalFiles"></param>
-        /// <param name="options"></param>
-        /// <param name="cancellationToken"></param>
         public async Task VerifyNoDiagnosticAsync(
             string source,
             string sourceData,
@@ -176,12 +128,7 @@ namespace Roslynator.Testing.CSharp
                 Descriptor,
                 code.Spans,
                 code.AdditionalSpans,
-                AdditionalFile.CreateRange(additionalFiles),
-                null,
-                null,
-                null,
-                null,
-                null);
+                AdditionalFile.CreateRange(additionalFiles));
 
             await VerifyNoDiagnosticAsync(
                 state,
@@ -189,13 +136,6 @@ namespace Roslynator.Testing.CSharp
                 cancellationToken);
         }
 
-        /// <summary>
-        /// Verifies that specified source will not produce diagnostic described with see <see cref="Descriptor"/>
-        /// </summary>
-        /// <param name="source"></param>
-        /// <param name="additionalFiles"></param>
-        /// <param name="options"></param>
-        /// <param name="cancellationToken"></param>
         public async Task VerifyNoDiagnosticAsync(
             string source,
             IEnumerable<string> additionalFiles = null,
@@ -204,16 +144,10 @@ namespace Roslynator.Testing.CSharp
         {
             var state = new DiagnosticTestState(
                 source,
-                null,
+                expectedSource: null,
                 Descriptor,
-                null,
-                null,
-                AdditionalFile.CreateRange(additionalFiles),
-                null,
-                null,
-                null,
-                null,
-                null);
+                spans: null,
+                additionalFiles: AdditionalFile.CreateRange(additionalFiles));
 
             await VerifyNoDiagnosticAsync(
                 state,
@@ -221,15 +155,6 @@ namespace Roslynator.Testing.CSharp
                 cancellationToken);
         }
 
-        /// <summary>
-        /// Verifies that specified source will produce diagnostic and that the diagnostic will be fixed with the <see cref="FixProvider"/>.
-        /// </summary>
-        /// <param name="source">A source code that should be tested. Tokens <c>[|</c> and <c>|]</c> represents start and end of selection respectively.</param>
-        /// <param name="expected"></param>
-        /// <param name="additionalFiles"></param>
-        /// <param name="equivalenceKey">Code action's equivalence key.</param>
-        /// <param name="options"></param>
-        /// <param name="cancellationToken"></param>
         public async Task VerifyDiagnosticAndFixAsync(
             string source,
             string expected,
@@ -249,25 +174,14 @@ namespace Roslynator.Testing.CSharp
                 expectedValue,
                 Descriptor,
                 code.Spans,
-                code.AdditionalSpans,
-                AdditionalFile.CreateRange(additionalFiles),
-                null,
-                null,
+                additionalSpans: code.AdditionalSpans,
+                additionalFiles: AdditionalFile.CreateRange(additionalFiles),
                 expectedSpans: expectedSpans,
-                null,
                 equivalenceKey: equivalenceKey);
 
             await VerifyDiagnosticAndFixAsync(state, options, cancellationToken);
         }
 
-        /// <summary>
-        /// Verifies that specified source will produce diagnostic and that the diagnostic will not be fixed with the <see cref="FixProvider"/>.
-        /// </summary>
-        /// <param name="source">A source code that should be tested. Tokens <c>[|</c> and <c>|]</c> represents start and end of selection respectively.</param>
-        /// <param name="additionalFiles"></param>
-        /// <param name="equivalenceKey">Code action's equivalence key.</param>
-        /// <param name="options"></param>
-        /// <param name="cancellationToken"></param>
         public async Task VerifyDiagnosticAndNoFixAsync(
             string source,
             IEnumerable<(string source, string expectedSource)> additionalFiles = null,
@@ -281,30 +195,16 @@ namespace Roslynator.Testing.CSharp
 
             var state = new DiagnosticTestState(
                 code.Value,
-                null,
+                expectedSource: null,
                 Descriptor,
                 code.Spans,
-                code.AdditionalSpans,
-                AdditionalFile.CreateRange(additionalFiles),
-                null,
-                null,
-                null,
-                null,
+                additionalSpans: code.AdditionalSpans,
+                additionalFiles: AdditionalFile.CreateRange(additionalFiles),
                 equivalenceKey: equivalenceKey);
 
             await VerifyDiagnosticAndNoFixAsync(state, options, cancellationToken);
         }
 
-        /// <summary>
-        /// Verifies that specified source will produce diagnostic and that the diagnostic will be fixed with the <see cref="FixProvider"/>.
-        /// </summary>
-        /// <param name="source">Source text that contains placeholder <c>[||]</c> to be replaced with <paramref name="sourceData"/> and <paramref name="expectedData"/>.</param>
-        /// <param name="sourceData"></param>
-        /// <param name="expectedData"></param>
-        /// <param name="additionalFiles"></param>
-        /// <param name="equivalenceKey">Code action's equivalence key.</param>
-        /// <param name="options"></param>
-        /// <param name="cancellationToken"></param>
         public async Task VerifyDiagnosticAndFixAsync(
             string source,
             string sourceData,

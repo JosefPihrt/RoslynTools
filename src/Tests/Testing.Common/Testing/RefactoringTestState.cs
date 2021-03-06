@@ -1,37 +1,32 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using Microsoft.CodeAnalysis.Text;
-
-#pragma warning disable RCS1223
 
 namespace Roslynator.Testing
 {
+    [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public sealed class RefactoringTestState : TestState
     {
         public RefactoringTestState(
             string source,
             string expectedSource,
             IEnumerable<TextSpan> spans,
-            IEnumerable<AdditionalFile> additionalFiles = null)
-            : this(source, expectedSource, spans, additionalFiles, null, null, null)
-        {
-        }
-
-        public RefactoringTestState(
-            string source,
-            string expectedSource,
-            IEnumerable<TextSpan> spans,
-            IEnumerable<AdditionalFile> additionalFiles,
-            IEnumerable<KeyValuePair<string, ImmutableArray<TextSpan>>> expectedSpans,
-            string codeActionTitle,
-            string equivalenceKey) : base(source, expectedSource, additionalFiles, expectedSpans, codeActionTitle, equivalenceKey)
+            IEnumerable<AdditionalFile> additionalFiles = null,
+            IEnumerable<KeyValuePair<string, ImmutableArray<TextSpan>>> expectedSpans = null,
+            string codeActionTitle = null,
+            string equivalenceKey = null) : base(source, expectedSource, additionalFiles, expectedSpans, codeActionTitle, equivalenceKey)
         {
             Spans = spans?.ToImmutableArray() ?? ImmutableArray<TextSpan>.Empty;
         }
 
         public ImmutableArray<TextSpan> Spans { get; private set; }
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        private string DebuggerDisplay => ToString();
 
         private RefactoringTestState(RefactoringTestState other)
             : this(
@@ -64,25 +59,6 @@ namespace Roslynator.Testing
                 equivalenceKey: equivalenceKey);
         }
 
-        internal RefactoringTestState MaybeUpdate(
-            string source = null,
-            string expectedSource = null,
-            IEnumerable<TextSpan> spans = null,
-            IEnumerable<AdditionalFile> additionalFiles = null,
-            IEnumerable<KeyValuePair<string, ImmutableArray<TextSpan>>> expectedSpans = null,
-            string codeActionTitle = null,
-            string equivalenceKey = null)
-        {
-            return new RefactoringTestState(
-                source: source ?? Source,
-                expectedSource: expectedSource ?? ExpectedSource,
-                spans: spans ?? Spans,
-                additionalFiles: additionalFiles ?? AdditionalFiles,
-                expectedSpans: expectedSpans ?? ExpectedSpans,
-                codeActionTitle: codeActionTitle ?? CodeActionTitle,
-                equivalenceKey: equivalenceKey ?? EquivalenceKey);
-        }
-
         protected override TestState CommonWithSource(string source)
         {
             return WithSource(source);
@@ -110,7 +86,7 @@ namespace Roslynator.Testing
 
         new public RefactoringTestState WithSource(string source)
         {
-            return new RefactoringTestState(this) { Source = source };
+            return new RefactoringTestState(this) { Source = source ?? throw new ArgumentNullException(nameof(source)) };
         }
 
         new public RefactoringTestState WithExpectedSource(string expectedSource)

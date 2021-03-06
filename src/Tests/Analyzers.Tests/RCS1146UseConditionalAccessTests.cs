@@ -3,7 +3,6 @@
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Roslynator.CSharp.CodeFixes;
-using Roslynator.Testing;
 using Roslynator.Testing.CSharp;
 using Xunit;
 

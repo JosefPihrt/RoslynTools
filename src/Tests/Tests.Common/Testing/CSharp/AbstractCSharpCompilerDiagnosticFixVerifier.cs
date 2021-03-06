@@ -15,23 +15,10 @@ namespace Roslynator.Testing.CSharp
     public abstract class AbstractCSharpCompilerDiagnosticFixVerifier<TFixProvider> : XunitCompilerDiagnosticFixVerifier<TFixProvider>
         where TFixProvider : CodeFixProvider, new()
     {
-        /// <summary>
-        /// Gets an ID of a diagnostic to verify.
-        /// </summary>
         public abstract string DiagnosticId { get; }
 
         public override CSharpTestOptions Options => DefaultCSharpTestOptions.Value;
 
-        /// <summary>
-        /// Verifies that specified source will produce compiler diagnostic with ID specified in <see cref="DiagnosticId"/>.
-        /// </summary>
-        /// <param name="source">Source text that contains placeholder <c>[||]</c> to be replaced with <paramref name="sourceData"/> and <paramref name="expectedData"/>.</param>
-        /// <param name="sourceData"></param>
-        /// <param name="expectedData"></param>
-        /// <param name="additionalFiles"></param>
-        /// <param name="equivalenceKey">Code action's equivalence key.</param>
-        /// <param name="options"></param>
-        /// <param name="cancellationToken"></param>
         public async Task VerifyFixAsync(
             string source,
             string sourceData,
@@ -53,8 +40,7 @@ namespace Roslynator.Testing.CSharp
                 expectedValue,
                 AdditionalFile.CreateRange(additionalFiles),
                 expectedSpans: expectedSpans,
-                codeActionTitle: null,
-                equivalenceKey);
+                equivalenceKey: equivalenceKey);
 
             await VerifyFixAsync(
                 state,
@@ -62,15 +48,6 @@ namespace Roslynator.Testing.CSharp
                 cancellationToken: cancellationToken);
         }
 
-        /// <summary>
-        /// Verifies that specified source will produce compiler diagnostic with ID specified in <see cref="DiagnosticId"/>.
-        /// </summary>
-        /// <param name="source">A source code that should be tested. Tokens <c>[|</c> and <c>|]</c> represents start and end of selection respectively.</param>
-        /// <param name="expected"></param>
-        /// <param name="additionalFiles"></param>
-        /// <param name="equivalenceKey">Code action's equivalence key.</param>
-        /// <param name="options"></param>
-        /// <param name="cancellationToken"></param>
         public async Task VerifyFixAsync(
             string source,
             string expected,
@@ -87,7 +64,6 @@ namespace Roslynator.Testing.CSharp
                 expectedValue,
                 AdditionalFile.CreateRange(additionalFiles),
                 expectedSpans: expectedSpans,
-                codeActionTitle: null,
                 equivalenceKey: equivalenceKey);
 
             await VerifyFixAsync(
@@ -96,14 +72,6 @@ namespace Roslynator.Testing.CSharp
                 cancellationToken);
         }
 
-        /// <summary>
-        /// Verifies that specified source will not produce compiler diagnostic with ID specified in <see cref="DiagnosticId"/>.
-        /// </summary>
-        /// <param name="source">A source code that should be tested. Tokens <c>[|</c> and <c>|]</c> represents start and end of selection respectively.</param>
-        /// <param name="additionalFiles"></param>
-        /// <param name="equivalenceKey">Code action's equivalence key.</param>
-        /// <param name="options"></param>
-        /// <param name="cancellationToken"></param>
         public async Task VerifyNoFixAsync(
             string source,
             IEnumerable<string> additionalFiles = null,
@@ -114,10 +82,7 @@ namespace Roslynator.Testing.CSharp
             var state = new CompilerDiagnosticFixTestState(
                 DiagnosticId,
                 source,
-                expectedSource: null,
-                AdditionalFile.CreateRange(additionalFiles),
-                expectedSpans: null,
-                codeActionTitle: null,
+                additionalFiles: AdditionalFile.CreateRange(additionalFiles),
                 equivalenceKey: equivalenceKey);
 
             await VerifyNoFixAsync(
