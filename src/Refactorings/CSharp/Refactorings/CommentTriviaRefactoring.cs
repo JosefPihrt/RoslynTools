@@ -31,13 +31,14 @@ namespace Roslynator.CSharp.Refactorings
                         RefactoringIdentifiers.RemoveComment);
                 }
 
-                if (context.IsRefactoringEnabled(RefactoringIdentifiers.RemoveAllComments))
-                {
-                    context.RegisterRefactoring(
-                        "Remove all comments",
-                        ct => document.RemoveCommentsAsync(CommentFilter.All, ct),
-                        RefactoringIdentifiers.RemoveAllComments);
-                }
+                //TODO: delete?
+                //if (context.IsRefactoringEnabled(RefactoringIdentifiers.RemoveAllComments))
+                //{
+                //    context.RegisterRefactoring(
+                //        "Remove all comments",
+                //        ct => document.RemoveCommentsAsync(CommentFilter.All, ct),
+                //        RefactoringIdentifiers.RemoveAllComments);
+                //}
 
                 if (context.IsRefactoringEnabled(RefactoringIdentifiers.RemoveAllCommentsExceptDocumentationComments)
                     && kind.Is(SyntaxKind.SingleLineCommentTrivia, SyntaxKind.MultiLineCommentTrivia))

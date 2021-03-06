@@ -200,7 +200,7 @@ class C
             ""abc"";
     }
 }
-");
+", equivalenceKey: RefactoringId);
         }
 
         [Fact, Trait(Traits.Refactoring, RefactoringIdentifiers.JoinStringExpressions)]
@@ -228,7 +228,7 @@ class C
 ;
     }
 }
-");
+", equivalenceKey: RefactoringId);
         }
     }
 }

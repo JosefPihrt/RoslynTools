@@ -211,7 +211,7 @@ enum Foo : sbyte
 using System;
 
 [Flags]
-enum Foo : sbyte
+enum [|Foo|] : sbyte
 {
     A = 0,
     B = 1,

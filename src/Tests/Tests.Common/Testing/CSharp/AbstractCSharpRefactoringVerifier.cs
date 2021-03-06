@@ -39,7 +39,7 @@ namespace Roslynator.Testing.CSharp
                 code.Spans.OrderByDescending(f => f.Start).ToImmutableArray(),
                 AdditionalFile.CreateRange(additionalFiles),
                 expectedSpans: expectedSpans,
-                equivalenceKey);
+                equivalenceKey: equivalenceKey);
 
             await VerifyRefactoringAsync(
                 state,
@@ -68,7 +68,7 @@ namespace Roslynator.Testing.CSharp
                 code.Spans.OrderByDescending(f => f.Start).ToImmutableArray(),
                 AdditionalFile.CreateRange(additionalFiles),
                 expectedSpans: expectedSpans,
-                equivalenceKey);
+                equivalenceKey: equivalenceKey);
 
             await VerifyRefactoringAsync(
                 state,
