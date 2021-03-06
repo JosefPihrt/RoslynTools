@@ -40,23 +40,23 @@ namespace Roslynator.CSharp.Refactorings
                 //        RefactoringIdentifiers.RemoveAllComments);
                 //}
 
-                if (context.IsRefactoringEnabled(RefactoringIdentifiers.RemoveAllCommentsExceptDocumentationComments)
-                    && kind.Is(SyntaxKind.SingleLineCommentTrivia, SyntaxKind.MultiLineCommentTrivia))
-                {
-                    context.RegisterRefactoring(
-                        "Remove all comments (except documentation comments)",
-                        ct => document.RemoveCommentsAsync(CommentFilter.NonDocumentation, ct),
-                        RefactoringIdentifiers.RemoveAllCommentsExceptDocumentationComments);
-                }
+                //if (context.IsRefactoringEnabled(RefactoringIdentifiers.RemoveAllCommentsExceptDocumentationComments)
+                //    && kind.Is(SyntaxKind.SingleLineCommentTrivia, SyntaxKind.MultiLineCommentTrivia))
+                //{
+                //    context.RegisterRefactoring(
+                //        "Remove all comments (except documentation comments)",
+                //        ct => document.RemoveCommentsAsync(CommentFilter.NonDocumentation, ct),
+                //        RefactoringIdentifiers.RemoveAllCommentsExceptDocumentationComments);
+                //}
 
-                if (context.IsRefactoringEnabled(RefactoringIdentifiers.RemoveAllDocumentationComments)
-                    && SyntaxFacts.IsDocumentationCommentTrivia(kind))
-                {
-                    context.RegisterRefactoring(
-                        "Remove all documentation comments",
-                        ct => document.RemoveCommentsAsync(CommentFilter.Documentation, ct),
-                        RefactoringIdentifiers.RemoveAllDocumentationComments);
-                }
+                //if (context.IsRefactoringEnabled(RefactoringIdentifiers.RemoveAllDocumentationComments)
+                //    && SyntaxFacts.IsDocumentationCommentTrivia(kind))
+                //{
+                //    context.RegisterRefactoring(
+                //        "Remove all documentation comments",
+                //        ct => document.RemoveCommentsAsync(CommentFilter.Documentation, ct),
+                //        RefactoringIdentifiers.RemoveAllDocumentationComments);
+                //}
             }
         }
 
