@@ -20,7 +20,7 @@ class C
 {
     void M(object x)
     {
-        M([|(|]x));
+        M([|(|]x{|a:)|});
     }
 }
 ", @"

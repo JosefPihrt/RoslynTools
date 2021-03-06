@@ -11,6 +11,8 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Formatting;
+using Microsoft.CodeAnalysis.Simplification;
 using Microsoft.CodeAnalysis.Text;
 
 namespace Roslynator.Testing
@@ -284,23 +286,10 @@ namespace Roslynator.Testing
 
                 Assert.True(fixRegistered, "No code fix has been registered.");
 
-                string actual = await document.ToFullStringAsync(simplify: true, format: true, cancellationToken);
-
-                Assert.Equal(state.ExpectedSource, actual);
+                await VerifyExpectedDocument(state, document, cancellationToken);
 
                 if (expectedDocuments.Any())
                     await VerifyAdditionalDocumentsAsync(document.Project, expectedDocuments, cancellationToken);
-
-                if (!state.ExpectedSpans.IsEmpty)
-                {
-                    document = document.WithText(SourceText.From(actual));
-                    SyntaxNode root = await document.GetSyntaxRootAsync(cancellationToken);
-
-                    foreach (KeyValuePair<string, ImmutableArray<TextSpan>> spans in state.ExpectedSpans)
-                    {
-                        VerifyAnnotations(spans.Value, actual, root, spans.Key, spans.Key);
-                    }
-                }
             }
         }
 
@@ -483,80 +472,16 @@ namespace Roslynator.Testing
                 if (actual.Path != expected.Path)
                     Assert.True(false, $"Diagnostic expected to be in file \"{expected.Path}\", actual: \"{actual.Path}\"{GetMessage()}");
 
-                VerifyLinePosition(actual.StartLinePosition, expected.StartLinePosition, "start");
-                VerifyLinePosition(actual.EndLinePosition, expected.EndLinePosition, "end");
-            }
+                string message = VerifyLinePositionSpan(expected.Span, actual.Span);
 
-            void VerifyLinePosition(
-                LinePosition actual,
-                LinePosition expected,
-                string startOrEnd)
-            {
-                int actualLine = actual.Line;
-                int expectedLine = expected.Line;
-
-                if (actualLine != expectedLine)
-                    Assert.True(false, $"Diagnostic expected to {startOrEnd} on line {expectedLine + 1}, actual: {actualLine + 1}{GetMessage()}");
-
-                int actualCharacter = actual.Character;
-                int expectedCharacter = expected.Character;
-
-                if (actualCharacter != expectedCharacter)
-                    Assert.True(false, $"Diagnostic expected to {startOrEnd} at column {expectedCharacter + 1}, actual: {actualCharacter + 1}{GetMessage()}");
+                if (message != null)
+                    Assert.True(false, $"Diagnostic{message}{GetMessage()}");
             }
 
             string GetMessage()
             {
                 return $"\r\n\r\nExpected diagnostic:\r\n{expectedDiagnostic}\r\n\r\nActual diagnostic:\r\n{actualDiagnostic}\r\n";
             }
-        }
-
-        private void VerifyAnnotations(
-            ImmutableArray<TextSpan> spans,
-            string source,
-            SyntaxNode root,
-            string annotationKind,
-            string annotationTitle)
-        {
-            ImmutableArray<SyntaxToken> tokens = root.GetAnnotatedTokens(annotationKind).OrderBy(f => f.SpanStart).ToImmutableArray();
-
-            if (spans.Length != tokens.Length)
-                Assert.True(false, $"{spans.Length} '{annotationTitle}' annotation(s) expected, actual: {tokens.Length}");
-
-            for (int i = 0; i < spans.Length; i++)
-            {
-                TextSpan expected = spans[i];
-                TextSpan actual = tokens[i].Span;
-
-                LinePositionSpan expected2 = expected.ToLinePositionSpan(source);
-                LinePositionSpan actual2 = actual.ToLinePositionSpan(source);
-
-                string message = VerifyLinePosition(expected2.Start, expected2.Start, "start")
-                    ?? VerifyLinePosition(expected2.End, expected2.End, "end");
-
-                if (message != null)
-                    Assert.True(false, $"Token with annotation '{annotationTitle}' {message}");
-            }
-        }
-
-        private static string VerifyLinePosition(
-            LinePosition actual,
-            LinePosition expected,
-            string startOrEnd)
-        {
-            int actualLine = actual.Line;
-            int expectedLine = expected.Line;
-
-            if (actualLine != expectedLine)
-                return $" expected to {startOrEnd} on line {expectedLine + 1}, actual: {actualLine + 1}";
-
-            int actualCharacter = actual.Character;
-            int expectedCharacter = expected.Character;
-
-            if (actualCharacter != expectedCharacter)
-                return $" expected to {startOrEnd} at column {expectedCharacter + 1}, actual: {actualCharacter + 1}";
-
-            return null;
         }
 
         private Compilation UpdateCompilation(

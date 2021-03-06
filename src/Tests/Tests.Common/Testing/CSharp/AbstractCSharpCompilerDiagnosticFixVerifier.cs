@@ -1,11 +1,14 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.CodeFixes;
+using Microsoft.CodeAnalysis.Text;
 using Roslynator.Testing.CSharp.Xunit;
+using Roslynator.Testing.Text;
 
 namespace Roslynator.Testing.CSharp
 {
@@ -42,13 +45,15 @@ namespace Roslynator.Testing.CSharp
 
             Debug.Assert(code.Spans.Length == 0);
 
+            (string expectedValue, ImmutableDictionary<string, ImmutableArray<TextSpan>> expectedSpans) = TextProcessor.FindAnnotatedSpansAndRemove(code.ExpectedValue);
+
             //TODO: expectedspans
             var state = new CompilerDiagnosticFixTestState(
                 DiagnosticId,
                 code.Value,
-                code.ExpectedValue,
+                expectedValue,
                 AdditionalFile.CreateRange(additionalFiles),
-                expectedSpans: null,
+                expectedSpans: expectedSpans,
                 codeActionTitle: null,
                 equivalenceKey);
 
@@ -75,13 +80,14 @@ namespace Roslynator.Testing.CSharp
             TestOptions options = null,
             CancellationToken cancellationToken = default)
         {
-            //TODO: expectedspans
+            (string expectedValue, ImmutableDictionary<string, ImmutableArray<TextSpan>> expectedSpans) = TextProcessor.FindAnnotatedSpansAndRemove(expected);
+
             var state = new CompilerDiagnosticFixTestState(
                 DiagnosticId,
                 source,
-                expected,
+                expectedValue,
                 AdditionalFile.CreateRange(additionalFiles),
-                expectedSpans: null,
+                expectedSpans: expectedSpans,
                 codeActionTitle: null,
                 equivalenceKey: equivalenceKey);
 

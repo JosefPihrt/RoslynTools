@@ -69,7 +69,7 @@ class C
 {
     void M(bool f1, bool f2)
     {
-        bool f = f2 & f1;
+        bool f = f2 {|n:&|} f1;
     }
 }
 ", equivalenceKey: RefactoringId);

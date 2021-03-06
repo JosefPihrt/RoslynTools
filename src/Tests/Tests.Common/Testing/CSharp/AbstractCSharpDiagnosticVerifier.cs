@@ -10,6 +10,7 @@ using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Text;
 using Roslynator.Testing.CSharp.Xunit;
+using Roslynator.Testing.Text;
 
 namespace Roslynator.Testing.CSharp
 {
@@ -241,17 +242,18 @@ namespace Roslynator.Testing.CSharp
 
             Debug.Assert(code.Spans.Length > 0);
 
-            //TODO: expectedspans
+            (string expectedValue, ImmutableDictionary<string, ImmutableArray<TextSpan>> expectedSpans) = TextProcessor.FindAnnotatedSpansAndRemove(expected);
+
             var state = new DiagnosticTestState(
                 code.Value,
-                expected,
+                expectedValue,
                 Descriptor,
                 code.Spans,
                 code.AdditionalSpans,
                 AdditionalFile.CreateRange(additionalFiles),
                 null,
                 null,
-                null,
+                expectedSpans: expectedSpans,
                 null,
                 equivalenceKey: equivalenceKey);
 
@@ -316,17 +318,18 @@ namespace Roslynator.Testing.CSharp
 
             Debug.Assert(code.Spans.Length > 0);
 
-            //TODO: expectedspans
+            (string expectedValue, ImmutableDictionary<string, ImmutableArray<TextSpan>> expectedSpans) = TextProcessor.FindAnnotatedSpansAndRemove(code.ExpectedValue);
+
             var state = new DiagnosticTestState(
                 code.Value,
-                code.ExpectedValue,
+                expectedValue,
                 Descriptor,
                 code.Spans,
                 code.AdditionalSpans,
                 AdditionalFile.CreateRange(additionalFiles),
                 null,
                 null,
-                null,
+                expectedSpans: expectedSpans,
                 null,
                 equivalenceKey: equivalenceKey);
 

@@ -6,8 +6,10 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.Text;
 using Roslynator.CSharp.Refactorings;
 using Roslynator.Testing.CSharp.Xunit;
+using Roslynator.Testing.Text;
 
 namespace Roslynator.Testing.CSharp
 {
@@ -38,13 +40,14 @@ namespace Roslynator.Testing.CSharp
 
             Debug.Assert(code.Spans.Length > 0);
 
-            //TODO: expectedspans
+            (string expectedValue, ImmutableDictionary<string, ImmutableArray<TextSpan>> expectedSpans) = TextProcessor.FindAnnotatedSpansAndRemove(expected);
+
             var state = new RefactoringTestState(
                 code.Value,
-                expected,
+                expectedValue,
                 code.Spans.OrderByDescending(f => f.Start).ToImmutableArray(),
                 AdditionalFile.CreateRange(additionalFiles),
-                expectedSpans: null,
+                expectedSpans: expectedSpans,
                 codeActionTitle: null,
                 equivalenceKey);
 
@@ -77,13 +80,14 @@ namespace Roslynator.Testing.CSharp
 
             Debug.Assert(code.Spans.Length > 0);
 
-            //TODO: expectedspans
+            (string expectedValue, ImmutableDictionary<string, ImmutableArray<TextSpan>> expectedSpans) = TextProcessor.FindAnnotatedSpansAndRemove(code.ExpectedValue);
+
             var state = new RefactoringTestState(
                 code.Value,
-                code.ExpectedValue,
+                expectedValue,
                 code.Spans.OrderByDescending(f => f.Start).ToImmutableArray(),
                 AdditionalFile.CreateRange(additionalFiles),
-                expectedSpans: null,
+                expectedSpans: expectedSpans,
                 codeActionTitle: null,
                 equivalenceKey);
 

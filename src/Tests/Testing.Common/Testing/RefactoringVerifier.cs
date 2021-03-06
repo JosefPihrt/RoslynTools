@@ -77,9 +77,7 @@ namespace Roslynator.Testing
                     VerifyCompilerDiagnostics(newCompilerDiagnostics, options);
                     VerifyNoNewCompilerDiagnostics(compilerDiagnostics, newCompilerDiagnostics, options);
 
-                    string actual = await document.ToFullStringAsync(simplify: true, format: true, cancellationToken);
-
-                    Assert.Equal(state.ExpectedSource, actual);
+                    await VerifyExpectedDocument(state, document, cancellationToken);
                 }
             }
         }

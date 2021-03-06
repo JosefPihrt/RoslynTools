@@ -8,12 +8,12 @@ using Microsoft.CodeAnalysis.Simplification;
 
 namespace Roslynator
 {
-    internal static class DocumentExtensions
+    internal static class TestExtensions
     {
-        public static async Task<string> ToFullStringAsync(
+        public static async Task<SyntaxNode> GetSyntaxRootAsync(
             this Document document,
-            bool simplify = false,
-            bool format = false,
+            bool simplify,
+            bool format,
             CancellationToken cancellationToken = default)
         {
             if (simplify)
@@ -24,7 +24,7 @@ namespace Roslynator
             if (format)
                 root = Formatter.Format(root, Formatter.Annotation, document.Project.Solution.Workspace);
 
-            return root.ToFullString();
+            return root;
         }
     }
 }

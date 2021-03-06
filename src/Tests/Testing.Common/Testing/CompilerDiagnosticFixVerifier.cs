@@ -112,9 +112,7 @@ namespace Roslynator.Testing
 
                 Assert.True(fixRegistered, "No code fix has been registered.");
 
-                string actual = await document.ToFullStringAsync(simplify: true, format: true, cancellationToken);
-
-                Assert.Equal(state.ExpectedSource, actual);
+                await VerifyExpectedDocument(state, document, cancellationToken);
 
                 if (expectedDocuments.Any())
                     await VerifyAdditionalDocumentsAsync(document.Project, expectedDocuments, cancellationToken);

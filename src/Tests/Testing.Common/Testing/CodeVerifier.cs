@@ -10,6 +10,9 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Formatting;
+using Microsoft.CodeAnalysis.Simplification;
+using Microsoft.CodeAnalysis.Text;
 
 namespace Roslynator.Testing
 {
@@ -95,7 +98,9 @@ namespace Roslynator.Testing
             {
                 Document document = project.GetDocument(expectedDocument.Id);
 
-                string actual = await document.ToFullStringAsync(simplify: true, format: true, cancellationToken);
+                SyntaxNode root = await document.GetSyntaxRootAsync(simplify: true, format: true, cancellationToken);
+
+                string actual = root.ToFullString();
 
                 Assert.Equal(expectedDocument.Text, actual);
             }
@@ -138,6 +143,91 @@ namespace Roslynator.Testing
 
             if (!fixableDiagnosticIds.Contains(diagnosticId))
                 Assert.True(false, $"Diagnostic '{diagnosticId}' is not fixable by '{fixProvider.GetType().Name}'.");
+        }
+
+        internal async Task VerifyExpectedDocument(
+            TestState state,
+            Document document,
+            CancellationToken cancellationToken)
+        {
+            SyntaxNode root = await document.GetSyntaxRootAsync(simplify: true, format: true, cancellationToken);
+
+            string actual = root.ToFullString();
+
+            Assert.Equal(state.ExpectedSource, actual);
+
+            if (!state.ExpectedSpans.IsEmpty)
+                VerifyAnnotations(state.ExpectedSpans, root, actual);
+        }
+
+        private void VerifyAnnotations(
+            ImmutableDictionary<string, ImmutableArray<TextSpan>> expectedSpans,
+            SyntaxNode root,
+            string source)
+        {
+            foreach (KeyValuePair<string, ImmutableArray<TextSpan>> kvp in expectedSpans)
+            {
+                string kind = GetAnnotationKind(kvp.Key);
+
+                ImmutableArray<TextSpan> spans = kvp.Value;
+
+                ImmutableArray<SyntaxToken> tokens = root.GetAnnotatedTokens(kind).OrderBy(f => f.SpanStart).ToImmutableArray();
+
+                if (spans.Length != tokens.Length)
+                    Assert.True(false, $"{spans.Length} '{kind}' annotation(s) expected, actual: {tokens.Length}");
+
+                for (int i = 0; i < spans.Length; i++)
+                {
+                    TextSpan expected = spans[i];
+                    TextSpan actual = tokens[i].Span;
+
+                    if (expected != actual)
+                    {
+                        string message = VerifyLinePositionSpan(
+                            expected.ToLinePositionSpan(source),
+                            actual.ToLinePositionSpan(source));
+
+                        if (message != null)
+                            Assert.True(false, $"Annotation '{kind}'{message}");
+                    }
+                }
+            }
+
+            static string GetAnnotationKind(string annotationKind)
+            {
+                return annotationKind switch
+                {
+                    "n" => "CodeAction_Navigation",
+                    "r" => RenameAnnotation.Kind,
+                    _ => annotationKind,
+                };
+            }
+        }
+
+        internal static string VerifyLinePositionSpan(LinePositionSpan expected, LinePositionSpan actual)
+        {
+            return VerifyLinePosition(expected.Start, actual.Start, "start")
+                ?? VerifyLinePosition(expected.End, actual.End, "end");
+        }
+
+        private static string VerifyLinePosition(
+            LinePosition expected,
+            LinePosition actual,
+            string startOrEnd)
+        {
+            int actualLine = actual.Line;
+            int expectedLine = expected.Line;
+
+            if (actualLine != expectedLine)
+                return $" expected to {startOrEnd} on line {expectedLine + 1}, actual: {actualLine + 1}";
+
+            int actualCharacter = actual.Character;
+            int expectedCharacter = expected.Character;
+
+            if (actualCharacter != expectedCharacter)
+                return $" expected to {startOrEnd} at column {expectedCharacter + 1}, actual: {actualCharacter + 1}";
+
+            return null;
         }
     }
 }

@@ -29,7 +29,7 @@ using System;
 [Flags]
 enum Foo
 {
-    None = 0,
+    {|r:None|} = 0,
     A = 1
 }
 ");

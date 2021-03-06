@@ -155,7 +155,6 @@ namespace Roslynator.Testing.Text
 
                             break;
                         }
-
                 }
 
                 column++;
