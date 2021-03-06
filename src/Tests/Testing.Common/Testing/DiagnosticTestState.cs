@@ -11,7 +11,6 @@ using Microsoft.CodeAnalysis.Text;
 
 namespace Roslynator.Testing
 {
-    //TODO: Diagnostic.Properties, AdditionalLocations
     public sealed class DiagnosticTestState : TestState
     {
         public DiagnosticTestState(

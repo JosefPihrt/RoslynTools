@@ -47,7 +47,6 @@ namespace Roslynator.Testing.CSharp
 
             (string expectedValue, ImmutableDictionary<string, ImmutableArray<TextSpan>> expectedSpans) = TextProcessor.FindAnnotatedSpansAndRemove(code.ExpectedValue);
 
-            //TODO: expectedspans
             var state = new CompilerDiagnosticFixTestState(
                 DiagnosticId,
                 code.Value,
