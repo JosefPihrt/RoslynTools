@@ -11,7 +11,7 @@ using Microsoft.CodeAnalysis.Text;
 namespace Roslynator.Testing
 {
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public sealed class DiagnosticTestState : TestState
+    public sealed class DiagnosticTestState
     {
         public DiagnosticTestState(
             string source,
@@ -21,13 +21,16 @@ namespace Roslynator.Testing
             IEnumerable<AdditionalFile> additionalFiles = null,
             string diagnosticMessage = null,
             IFormatProvider formatProvider = null,
-            string equivalenceKey = null) : base(source, additionalFiles, equivalenceKey)
+            string equivalenceKey = null)
         {
+            Source = source ?? throw new ArgumentNullException(nameof(source));
             Descriptor = descriptor ?? throw new ArgumentNullException(nameof(descriptor));
             Spans = spans?.ToImmutableArray() ?? ImmutableArray<TextSpan>.Empty;
             AdditionalSpans = additionalSpans?.ToImmutableArray() ?? ImmutableArray<TextSpan>.Empty;
+            AdditionalFiles = additionalFiles?.ToImmutableArray() ?? ImmutableArray<AdditionalFile>.Empty;
             DiagnosticMessage = diagnosticMessage;
             FormatProvider = formatProvider;
+            EquivalenceKey = equivalenceKey;
 
             if (Spans.Length > 1
                 && !AdditionalSpans.IsEmpty)
@@ -49,15 +52,21 @@ namespace Roslynator.Testing
         {
         }
 
+        public string Source { get; }
+
         public DiagnosticDescriptor Descriptor { get; }
 
         public ImmutableArray<TextSpan> Spans { get; }
 
         public ImmutableArray<TextSpan> AdditionalSpans { get; }
 
+        public ImmutableArray<AdditionalFile> AdditionalFiles { get; }
+
         public string DiagnosticMessage { get; }
 
         public IFormatProvider FormatProvider { get; }
+
+        public string EquivalenceKey { get; }
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private string DebuggerDisplay => $"{Descriptor.Id}  {Source}";
@@ -92,81 +101,5 @@ namespace Roslynator.Testing
                 formatProvider: formatProvider,
                 equivalenceKey: equivalenceKey);
         }
-
-        //TODO: del
-        //protected override TestState CommonWithSource(string source)
-        //{
-        //    return WithSource(source);
-        //}
-
-        //protected override TestState CommonWithExpectedSource(string expectedSource)
-        //{
-        //    return WithExpectedSource(expectedSource);
-        //}
-
-        //protected override TestState CommonWithAdditionalFiles(IEnumerable<AdditionalFile> additionalFiles)
-        //{
-        //    return WithAdditionalFiles(additionalFiles);
-        //}
-
-        //protected override TestState CommonWithCodeActionTitle(string codeActionTitle)
-        //{
-        //    return WithCodeActionTitle(codeActionTitle);
-        //}
-
-        //protected override TestState CommonWithEquivalenceKey(string equivalenceKey)
-        //{
-        //    return WithEquivalenceKey(equivalenceKey);
-        //}
-
-        //new public DiagnosticTestState WithSource(string source)
-        //{
-        //    return new DiagnosticTestState(this) { Source = source ?? throw new ArgumentNullException(nameof(source)) };
-        //}
-
-        //new public DiagnosticTestState WithExpectedSource(string expectedSource)
-        //{
-        //    return new DiagnosticTestState(this) { ExpectedSource = expectedSource };
-        //}
-
-        //public DiagnosticTestState WithDescriptor(DiagnosticDescriptor descriptor)
-        //{
-        //    return new DiagnosticTestState(this) { Descriptor = descriptor ?? throw new ArgumentNullException(nameof(descriptor)) };
-        //}
-
-        //public DiagnosticTestState WithSpans(IEnumerable<TextSpan> spans)
-        //{
-        //    return new DiagnosticTestState(this) { Spans = spans?.ToImmutableArray() ?? ImmutableArray<TextSpan>.Empty };
-        //}
-
-        //public DiagnosticTestState WithAdditionalSpans(IEnumerable<TextSpan> additionalSpans)
-        //{
-        //    return new DiagnosticTestState(this) { AdditionalSpans = additionalSpans?.ToImmutableArray() ?? ImmutableArray<TextSpan>.Empty };
-        //}
-
-        //new public DiagnosticTestState WithAdditionalFiles(IEnumerable<AdditionalFile> additionalFiles)
-        //{
-        //    return new DiagnosticTestState(this) { AdditionalFiles = additionalFiles?.ToImmutableArray() ?? ImmutableArray<AdditionalFile>.Empty };
-        //}
-
-        //public DiagnosticTestState WithDiagnosticMessage(string diagnosticMessage)
-        //{
-        //    return new DiagnosticTestState(this) { DiagnosticMessage = diagnosticMessage };
-        //}
-
-        //public DiagnosticTestState WithFormatProvider(IFormatProvider formatProvider)
-        //{
-        //    return new DiagnosticTestState(this) { FormatProvider = formatProvider };
-        //}
-
-        //new public DiagnosticTestState WithCodeActionTitle(string codeActionTitle)
-        //{
-        //    return new DiagnosticTestState(this) { CodeActionTitle = codeActionTitle };
-        //}
-
-        //new public DiagnosticTestState WithEquivalenceKey(string equivalenceKey)
-        //{
-        //    return new DiagnosticTestState(this) { EquivalenceKey = equivalenceKey };
-        //}
     }
 }

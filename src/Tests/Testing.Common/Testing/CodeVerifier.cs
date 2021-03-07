@@ -155,42 +155,33 @@ namespace Roslynator.Testing
 
             Assert.Equal(expected.Source, actual);
 
-            ImmutableDictionary<string, ImmutableArray<TextSpan>> expectedSpans = expected.Spans;
-
-            if (!expectedSpans.IsEmpty)
-                VerifyAnnotations(expectedSpans, root, actual);
+            if (!expected.Spans.IsEmpty
+                || !expected.AlwaysVerifyAnnotations.IsEmpty)
+            {
+                VerifyAnnotations(expected, root, actual);
+            }
         }
 
         private void VerifyAnnotations(
-            ImmutableDictionary<string, ImmutableArray<TextSpan>> expectedSpans,
+            ExpectedTestState expected,
             SyntaxNode root,
             string source)
         {
-            foreach (KeyValuePair<string, ImmutableArray<TextSpan>> kvp in expectedSpans)
+            foreach (KeyValuePair<string, ImmutableArray<TextSpan>> kvp in expected.Spans)
             {
                 string kind = GetAnnotationKind(kvp.Key);
-
                 ImmutableArray<TextSpan> spans = kvp.Value;
 
-                ImmutableArray<SyntaxToken> tokens = root.GetAnnotatedTokens(kind).OrderBy(f => f.SpanStart).ToImmutableArray();
+                VerifyAnnotations(root, source, kind, spans);
+            }
 
-                if (spans.Length != tokens.Length)
-                    Assert.True(false, $"{spans.Length} '{kind}' annotation(s) expected, actual: {tokens.Length}");
-
-                for (int i = 0; i < spans.Length; i++)
+            foreach (string kind in expected.AlwaysVerifyAnnotations)
+            {
+                if (!expected.Spans.ContainsKey(kind))
                 {
-                    TextSpan expected = spans[i];
-                    TextSpan actual = tokens[i].Span;
+                    ImmutableArray<TextSpan> spans = expected.Spans.GetValueOrDefault(kind, ImmutableArray<TextSpan>.Empty);
 
-                    if (expected != actual)
-                    {
-                        string message = VerifyLinePositionSpan(
-                            expected.ToLinePositionSpan(source),
-                            actual.ToLinePositionSpan(source));
-
-                        if (message != null)
-                            Assert.True(false, $"Annotation '{kind}'{message}");
-                    }
+                    VerifyAnnotations(root, source, kind, spans);
                 }
             }
 
@@ -203,6 +194,34 @@ namespace Roslynator.Testing
                     return RenameAnnotation.Kind;
 
                 return value;
+            }
+        }
+
+        private void VerifyAnnotations(
+            SyntaxNode root,
+            string source,
+            string kind,
+            ImmutableArray<TextSpan> spans)
+        {
+            ImmutableArray<SyntaxToken> tokens = root.GetAnnotatedTokens(kind).OrderBy(f => f.SpanStart).ToImmutableArray();
+
+            if (spans.Length != tokens.Length)
+                Assert.True(false, $"{spans.Length} '{kind}' annotation(s) expected, actual: {tokens.Length}");
+
+            for (int i = 0; i < spans.Length; i++)
+            {
+                TextSpan expectedSpan = spans[i];
+                TextSpan actualSpan = tokens[i].Span;
+
+                if (expectedSpan != actualSpan)
+                {
+                    string message = VerifyLinePositionSpan(
+                        expectedSpan.ToLinePositionSpan(source),
+                        actualSpan.ToLinePositionSpan(source));
+
+                    if (message != null)
+                        Assert.True(false, $"Annotation '{kind}'{message}");
+                }
             }
         }
 
@@ -233,7 +252,7 @@ namespace Roslynator.Testing
         }
 
         internal static (Document document, ImmutableArray<ExpectedDocument> expectedDocuments)
-            CreateDocument(Solution solution, TestState state, TestOptions options)
+            CreateDocument(Solution solution, string source, ImmutableArray<AdditionalFile> additionalFiles, TestOptions options)
         {
             const string DefaultProjectName = "TestProject";
 
@@ -245,11 +264,9 @@ namespace Roslynator.Testing
                 .WithCompilationOptions(compilationOptions)
                 .WithParseOptions(options.ParseOptions);
 
-            Document document = project.AddDocument(options.DocumentName, SourceText.From(state.Source));
+            Document document = project.AddDocument(options.DocumentName, SourceText.From(source));
 
             ImmutableArray<ExpectedDocument>.Builder expectedDocuments = null;
-
-            ImmutableArray<AdditionalFile> additionalFiles = state.AdditionalFiles;
 
             if (!additionalFiles.IsEmpty)
             {

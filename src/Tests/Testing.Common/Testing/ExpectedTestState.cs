@@ -29,7 +29,7 @@ namespace Roslynator.Testing
 
         public string Title { get; }
 
-        public IEnumerable<string> AlwaysVerifyAnnotations { get; }
+        public ImmutableArray<string> AlwaysVerifyAnnotations { get; }
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private string DebuggerDisplay => Source;

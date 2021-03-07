@@ -45,7 +45,7 @@ namespace Roslynator.Testing
 
             using (Workspace workspace = new AdhocWorkspace())
             {
-                (Document document, ImmutableArray<ExpectedDocument> expectedDocuments) = CreateDocument(workspace.CurrentSolution, state, options);
+                (Document document, ImmutableArray<ExpectedDocument> expectedDocuments) = CreateDocument(workspace.CurrentSolution, state.Source, state.AdditionalFiles, options);
 
                 SyntaxTree tree = await document.GetSyntaxTreeAsync();
 
@@ -115,7 +115,7 @@ namespace Roslynator.Testing
 
             using (Workspace workspace = new AdhocWorkspace())
             {
-                (Document document, ImmutableArray<ExpectedDocument> expectedDocuments) = CreateDocument(workspace.CurrentSolution, state, options);
+                (Document document, ImmutableArray<ExpectedDocument> expectedDocuments) = CreateDocument(workspace.CurrentSolution, state.Source, state.AdditionalFiles, options);
 
                 SyntaxTree tree = await document.GetSyntaxTreeAsync();
 
@@ -179,7 +179,7 @@ namespace Roslynator.Testing
 
             using (Workspace workspace = new AdhocWorkspace())
             {
-                (Document document, ImmutableArray<ExpectedDocument> expectedDocuments) = CreateDocument(workspace.CurrentSolution, state, options);
+                (Document document, ImmutableArray<ExpectedDocument> expectedDocuments) = CreateDocument(workspace.CurrentSolution, state.Source, state.AdditionalFiles, options);
 
                 Project project = document.Project;
 
@@ -309,7 +309,7 @@ namespace Roslynator.Testing
 
             using (Workspace workspace = new AdhocWorkspace())
             {
-                (Document document, ImmutableArray<ExpectedDocument> expectedDocuments) = CreateDocument(workspace.CurrentSolution, state, options);
+                (Document document, ImmutableArray<ExpectedDocument> expectedDocuments) = CreateDocument(workspace.CurrentSolution, state.Source, state.AdditionalFiles, options);
 
                 Compilation compilation = await document.Project.GetCompilationAsync(cancellationToken);
 
