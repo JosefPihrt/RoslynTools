@@ -145,11 +145,12 @@ namespace Roslynator.Testing
 
         public async Task VerifyDiagnosticAndFixAsync(
             DiagnosticTestState state,
+            ExpectedTestState expected,
             TestOptions options = null,
             CancellationToken cancellationToken = default)
         {
             await VerifyDiagnosticAsync(state, options, cancellationToken);
-            await VerifyFixAsync(state, options, cancellationToken);
+            await VerifyFixAsync(state, expected, options, cancellationToken);
         }
 
         public async Task VerifyDiagnosticAndNoFixAsync(
@@ -163,6 +164,7 @@ namespace Roslynator.Testing
 
         private async Task VerifyFixAsync(
             DiagnosticTestState state,
+            ExpectedTestState expected,
             TestOptions options = null,
             CancellationToken cancellationToken = default)
         {
@@ -268,7 +270,7 @@ namespace Roslynator.Testing
 
                     fixRegistered = true;
 
-                    document = await VerifyAndApplyCodeActionAsync(document, action, state.CodeActionTitle);
+                    document = await VerifyAndApplyCodeActionAsync(document, action, expected.Title);
                     compilation = await document.Project.GetCompilationAsync(cancellationToken);
 
                     ImmutableArray<Diagnostic> newCompilerDiagnostics = compilation.GetDiagnostics(cancellationToken);
@@ -283,7 +285,7 @@ namespace Roslynator.Testing
 
                 Assert.True(fixRegistered, "No code fix has been registered.");
 
-                await VerifyExpectedDocument(state, document, cancellationToken);
+                await VerifyExpectedDocument(expected, document, cancellationToken);
 
                 if (expectedDocuments.Any())
                     await VerifyAdditionalDocumentsAsync(document.Project, expectedDocuments, cancellationToken);

@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using Microsoft.CodeAnalysis.Text;
 
 namespace Roslynator.Testing
 {
@@ -11,50 +10,39 @@ namespace Roslynator.Testing
     {
         internal TestState(
             string source,
-            string expectedSource,
             IEnumerable<AdditionalFile> additionalFiles = null,
-            IEnumerable<KeyValuePair<string, ImmutableArray<TextSpan>>> expectedSpans = null,
-            string codeActionTitle = null,
             string equivalenceKey = null)
         {
             Source = source ?? throw new ArgumentNullException(nameof(source));
-            ExpectedSource = expectedSource;
             AdditionalFiles = additionalFiles?.ToImmutableArray() ?? ImmutableArray<AdditionalFile>.Empty;
-            CodeActionTitle = codeActionTitle;
             EquivalenceKey = equivalenceKey;
-            ExpectedSpans = expectedSpans?.ToImmutableDictionary(f => f.Key, f => f.Value) ?? ImmutableDictionary<string, ImmutableArray<TextSpan>>.Empty;
         }
 
         public string Source { get; protected set; }
 
-        public string ExpectedSource { get; protected set; }
-
         public ImmutableArray<AdditionalFile> AdditionalFiles { get; protected set; }
 
-        public ImmutableDictionary<string, ImmutableArray<TextSpan>> ExpectedSpans { get; }
+        public string EquivalenceKey { get; }
 
-        public string CodeActionTitle { get; protected set; }
+        //TODO: del
+        //protected abstract TestState CommonWithSource(string source);
 
-        public string EquivalenceKey { get; protected set; }
+        //protected abstract TestState CommonWithExpectedSource(string expectedSource);
 
-        protected abstract TestState CommonWithSource(string source);
+        //protected abstract TestState CommonWithAdditionalFiles(IEnumerable<AdditionalFile> additionalFiles);
 
-        protected abstract TestState CommonWithExpectedSource(string expectedSource);
+        //protected abstract TestState CommonWithCodeActionTitle(string codeActionTitle);
 
-        protected abstract TestState CommonWithAdditionalFiles(IEnumerable<AdditionalFile> additionalFiles);
+        //protected abstract TestState CommonWithEquivalenceKey(string equivalenceKey);
 
-        protected abstract TestState CommonWithCodeActionTitle(string codeActionTitle);
+        //public TestState WithSource(string source) => CommonWithSource(source);
 
-        protected abstract TestState CommonWithEquivalenceKey(string equivalenceKey);
+        //public TestState WithExpectedSource(string expectedSource) => CommonWithExpectedSource(expectedSource);
 
-        public TestState WithSource(string source) => CommonWithSource(source);
+        //public TestState WithAdditionalFiles(IEnumerable<AdditionalFile> additionalFiles) => CommonWithAdditionalFiles(additionalFiles);
 
-        public TestState WithExpectedSource(string expectedSource) => CommonWithExpectedSource(expectedSource);
+        //public TestState WithCodeActionTitle(string codeActionTitle) => CommonWithCodeActionTitle(codeActionTitle);
 
-        public TestState WithAdditionalFiles(IEnumerable<AdditionalFile> additionalFiles) => CommonWithAdditionalFiles(additionalFiles);
-
-        public TestState WithCodeActionTitle(string codeActionTitle) => CommonWithCodeActionTitle(codeActionTitle);
-
-        public TestState WithEquivalenceKey(string equivalenceKey) => CommonWithEquivalenceKey(equivalenceKey);
+        //public TestState WithEquivalenceKey(string equivalenceKey) => CommonWithEquivalenceKey(equivalenceKey);
     }
 }

@@ -34,7 +34,6 @@ namespace Roslynator.Testing.CSharp
 
             var state = new DiagnosticTestState(
                 code.Value,
-                expectedSource: null,
                 Descriptor,
                 code.Spans,
                 code.AdditionalSpans,
@@ -59,7 +58,6 @@ namespace Roslynator.Testing.CSharp
 
             var state = new DiagnosticTestState(
                 source,
-                expectedSource: null,
                 Descriptor,
                 code.Spans,
                 code.AdditionalSpans,
@@ -80,7 +78,6 @@ namespace Roslynator.Testing.CSharp
         {
             var state = new DiagnosticTestState(
                 source,
-                expectedSource: null,
                 Descriptor,
                 ImmutableArray.Create(span),
                 additionalFiles: AdditionalFile.CreateRange(additionalFiles));
@@ -100,7 +97,6 @@ namespace Roslynator.Testing.CSharp
         {
             var state = new DiagnosticTestState(
                 source,
-                expectedSource: null,
                 Descriptor,
                 spans,
                 additionalFiles: AdditionalFile.CreateRange(additionalFiles));
@@ -124,7 +120,6 @@ namespace Roslynator.Testing.CSharp
 
             var state = new DiagnosticTestState(
                 code.Value,
-                code.ExpectedValue,
                 Descriptor,
                 code.Spans,
                 code.AdditionalSpans,
@@ -144,7 +139,6 @@ namespace Roslynator.Testing.CSharp
         {
             var state = new DiagnosticTestState(
                 source,
-                expectedSource: null,
                 Descriptor,
                 spans: null,
                 additionalFiles: AdditionalFile.CreateRange(additionalFiles));
@@ -157,7 +151,7 @@ namespace Roslynator.Testing.CSharp
 
         public async Task VerifyDiagnosticAndFixAsync(
             string source,
-            string expected,
+            string expectedSource,
             IEnumerable<(string source, string expectedSource)> additionalFiles = null,
             string equivalenceKey = null,
             TestOptions options = null,
@@ -167,19 +161,17 @@ namespace Roslynator.Testing.CSharp
 
             Debug.Assert(code.Spans.Length > 0);
 
-            (string expectedValue, ImmutableDictionary<string, ImmutableArray<TextSpan>> expectedSpans) = TextProcessor.FindAnnotatedSpansAndRemove(expected);
+            var expected = ExpectedTestState.Parse(expectedSource);
 
             var state = new DiagnosticTestState(
                 code.Value,
-                expectedValue,
                 Descriptor,
                 code.Spans,
                 additionalSpans: code.AdditionalSpans,
                 additionalFiles: AdditionalFile.CreateRange(additionalFiles),
-                expectedSpans: expectedSpans,
                 equivalenceKey: equivalenceKey);
 
-            await VerifyDiagnosticAndFixAsync(state, options, cancellationToken);
+            await VerifyDiagnosticAndFixAsync(state, expected, options, cancellationToken);
         }
 
         public async Task VerifyDiagnosticAndNoFixAsync(
@@ -195,7 +187,6 @@ namespace Roslynator.Testing.CSharp
 
             var state = new DiagnosticTestState(
                 code.Value,
-                expectedSource: null,
                 Descriptor,
                 code.Spans,
                 additionalSpans: code.AdditionalSpans,
@@ -218,22 +209,17 @@ namespace Roslynator.Testing.CSharp
 
             Debug.Assert(code.Spans.Length > 0);
 
-            (string expectedValue, ImmutableDictionary<string, ImmutableArray<TextSpan>> expectedSpans) = TextProcessor.FindAnnotatedSpansAndRemove(code.ExpectedValue);
+            var expected = ExpectedTestState.Parse(code.ExpectedValue);
 
             var state = new DiagnosticTestState(
                 code.Value,
-                expectedValue,
                 Descriptor,
                 code.Spans,
                 code.AdditionalSpans,
                 AdditionalFile.CreateRange(additionalFiles),
-                null,
-                null,
-                expectedSpans: expectedSpans,
-                null,
                 equivalenceKey: equivalenceKey);
 
-            await VerifyDiagnosticAndFixAsync(state, options, cancellationToken);
+            await VerifyDiagnosticAndFixAsync(state, expected, options, cancellationToken);
         }
     }
 }

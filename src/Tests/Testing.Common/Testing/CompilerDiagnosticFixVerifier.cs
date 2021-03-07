@@ -29,6 +29,7 @@ namespace Roslynator.Testing
         /// <param name="cancellationToken"></param>
         public async Task VerifyFixAsync(
             CompilerDiagnosticFixTestState state,
+            ExpectedTestState expected,
             TestOptions options = null,
             CancellationToken cancellationToken = default)
         {
@@ -105,14 +106,14 @@ namespace Roslynator.Testing
 
                     fixRegistered = true;
 
-                    document = await VerifyAndApplyCodeActionAsync(document, action, state.CodeActionTitle);
+                    document = await VerifyAndApplyCodeActionAsync(document, action, expected.Title);
 
                     previousDiagnostics = diagnostics;
                 }
 
                 Assert.True(fixRegistered, "No code fix has been registered.");
 
-                await VerifyExpectedDocument(state, document, cancellationToken);
+                await VerifyExpectedDocument(expected, document, cancellationToken);
 
                 if (expectedDocuments.Any())
                     await VerifyAdditionalDocumentsAsync(document.Project, expectedDocuments, cancellationToken);

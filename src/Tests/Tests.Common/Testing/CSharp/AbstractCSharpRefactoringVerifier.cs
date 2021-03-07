@@ -21,7 +21,7 @@ namespace Roslynator.Testing.CSharp
 
         public async Task VerifyRefactoringAsync(
             string source,
-            string expected,
+            string expectedSource,
             IEnumerable<string> additionalFiles = null,
             string equivalenceKey = null,
             TestOptions options = null,
@@ -31,18 +31,17 @@ namespace Roslynator.Testing.CSharp
 
             Debug.Assert(code.Spans.Length > 0);
 
-            (string expectedValue, ImmutableDictionary<string, ImmutableArray<TextSpan>> expectedSpans) = TextProcessor.FindAnnotatedSpansAndRemove(expected);
+            var expected = ExpectedTestState.Parse(expectedSource);
 
             var state = new RefactoringTestState(
                 code.Value,
-                expectedValue,
                 code.Spans.OrderByDescending(f => f.Start).ToImmutableArray(),
                 AdditionalFile.CreateRange(additionalFiles),
-                expectedSpans: expectedSpans,
                 equivalenceKey: equivalenceKey);
 
             await VerifyRefactoringAsync(
                 state,
+                expected,
                 options,
                 cancellationToken: cancellationToken);
         }
@@ -60,18 +59,17 @@ namespace Roslynator.Testing.CSharp
 
             Debug.Assert(code.Spans.Length > 0);
 
-            (string expectedValue, ImmutableDictionary<string, ImmutableArray<TextSpan>> expectedSpans) = TextProcessor.FindAnnotatedSpansAndRemove(code.ExpectedValue);
+            var expected = ExpectedTestState.Parse(code.ExpectedValue);
 
             var state = new RefactoringTestState(
                 code.Value,
-                expectedValue,
                 code.Spans.OrderByDescending(f => f.Start).ToImmutableArray(),
                 AdditionalFile.CreateRange(additionalFiles),
-                expectedSpans: expectedSpans,
                 equivalenceKey: equivalenceKey);
 
             await VerifyRefactoringAsync(
                 state,
+                expected,
                 options,
                 cancellationToken: cancellationToken);
         }
@@ -86,7 +84,6 @@ namespace Roslynator.Testing.CSharp
 
             var state = new RefactoringTestState(
                 code.Value,
-                expectedSource: null,
                 code.Spans,
                 equivalenceKey: equivalenceKey);
 

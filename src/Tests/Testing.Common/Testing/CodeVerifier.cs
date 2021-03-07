@@ -145,7 +145,7 @@ namespace Roslynator.Testing
         }
 
         internal async Task VerifyExpectedDocument(
-            TestState state,
+            ExpectedTestState expected,
             Document document,
             CancellationToken cancellationToken)
         {
@@ -153,9 +153,9 @@ namespace Roslynator.Testing
 
             string actual = root.ToFullString();
 
-            Assert.Equal(state.ExpectedSource, actual);
+            Assert.Equal(expected.Source, actual);
 
-            ImmutableDictionary<string, ImmutableArray<TextSpan>> expectedSpans = state.ExpectedSpans;
+            ImmutableDictionary<string, ImmutableArray<TextSpan>> expectedSpans = expected.Spans;
 
             if (!expectedSpans.IsEmpty)
                 VerifyAnnotations(expectedSpans, root, actual);

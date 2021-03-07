@@ -23,6 +23,7 @@ namespace Roslynator.Testing
 
         public async Task VerifyRefactoringAsync(
             RefactoringTestState state,
+            ExpectedTestState expected,
             TestOptions options = null,
             CancellationToken cancellationToken = default)
         {
@@ -69,7 +70,7 @@ namespace Roslynator.Testing
 
                     Assert.True(action != null, "No code refactoring has been registered.");
 
-                    document = await VerifyAndApplyCodeActionAsync(document, action, state.CodeActionTitle);
+                    document = await VerifyAndApplyCodeActionAsync(document, action, expected.Title);
                     semanticModel = await document.GetSemanticModelAsync(cancellationToken);
 
                     ImmutableArray<Diagnostic> newCompilerDiagnostics = semanticModel.GetDiagnostics(cancellationToken: cancellationToken);
@@ -77,7 +78,7 @@ namespace Roslynator.Testing
                     VerifyCompilerDiagnostics(newCompilerDiagnostics, options);
                     VerifyNoNewCompilerDiagnostics(compilerDiagnostics, newCompilerDiagnostics, options);
 
-                    await VerifyExpectedDocument(state, document, cancellationToken);
+                    await VerifyExpectedDocument(expected, document, cancellationToken);
                 }
             }
         }

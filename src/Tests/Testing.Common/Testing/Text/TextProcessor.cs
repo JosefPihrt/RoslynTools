@@ -15,7 +15,7 @@ namespace Roslynator.Testing.Text
     {
         private static readonly Regex _annotatedSpanRegex = new Regex(@"(?s)\{\|(?<identifier>[^:]+):(?<content>.*?)\|\}");
 
-        public static (string text, ImmutableDictionary<string, ImmutableArray<TextSpan>>) FindAnnotatedSpansAndRemove(string text)
+        public static (string source, ImmutableDictionary<string, ImmutableArray<TextSpan>> spans) FindAnnotatedSpansAndRemove(string text)
         {
             int offset = 0;
             int lastPos = 0;

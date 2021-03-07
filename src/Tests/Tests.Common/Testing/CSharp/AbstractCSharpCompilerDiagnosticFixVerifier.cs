@@ -32,42 +32,40 @@ namespace Roslynator.Testing.CSharp
 
             Debug.Assert(code.Spans.Length == 0);
 
-            (string expectedValue, ImmutableDictionary<string, ImmutableArray<TextSpan>> expectedSpans) = TextProcessor.FindAnnotatedSpansAndRemove(code.ExpectedValue);
+            ExpectedTestState expected = ExpectedTestState.Parse(code.ExpectedValue);
 
             var state = new CompilerDiagnosticFixTestState(
                 DiagnosticId,
                 code.Value,
-                expectedValue,
                 AdditionalFile.CreateRange(additionalFiles),
-                expectedSpans: expectedSpans,
                 equivalenceKey: equivalenceKey);
 
             await VerifyFixAsync(
                 state,
+                expected,
                 options: options,
                 cancellationToken: cancellationToken);
         }
 
         public async Task VerifyFixAsync(
             string source,
-            string expected,
+            string expectedSource,
             IEnumerable<(string source, string expectedSource)> additionalFiles = null,
             string equivalenceKey = null,
             TestOptions options = null,
             CancellationToken cancellationToken = default)
         {
-            (string expectedValue, ImmutableDictionary<string, ImmutableArray<TextSpan>> expectedSpans) = TextProcessor.FindAnnotatedSpansAndRemove(expected);
+            var expected = ExpectedTestState.Parse(expectedSource);
 
             var state = new CompilerDiagnosticFixTestState(
                 DiagnosticId,
                 source,
-                expectedValue,
                 AdditionalFile.CreateRange(additionalFiles),
-                expectedSpans: expectedSpans,
                 equivalenceKey: equivalenceKey);
 
             await VerifyFixAsync(
                 state,
+                expected,
                 options,
                 cancellationToken);
         }
