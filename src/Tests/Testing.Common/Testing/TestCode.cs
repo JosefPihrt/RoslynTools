@@ -3,7 +3,7 @@
 using System.Collections.Immutable;
 using System.Diagnostics;
 using Microsoft.CodeAnalysis.Text;
-using Roslynator.Testing.Text;
+using static Roslynator.Testing.Text.TextProcessor;
 
 namespace Roslynator.Testing
 {
@@ -52,9 +52,9 @@ namespace Roslynator.Testing
         /// <param name="value"></param>
         public static TestCode Parse(string value)
         {
-            (string source, ImmutableArray<TextSpan> spans) = TextProcessor.FindSpansAndRemove(value);
+            (string source, ImmutableArray<TextSpan> spans) = FindSpansAndRemove(value);
 
-            (string source2, ImmutableDictionary<string, ImmutableArray<TextSpan>> annotatedSpans) = TextProcessor.FindAnnotatedSpansAndRemove(source);
+            (string source2, ImmutableDictionary<string, ImmutableArray<TextSpan>> annotatedSpans) = FindAnnotatedSpansAndRemove(source);
 
             ImmutableArray<TextSpan> additionalSpans = annotatedSpans.GetValueOrDefault("a");
 
@@ -72,9 +72,9 @@ namespace Roslynator.Testing
             string replacement1,
             string replacement2 = null)
         {
-            (string source, string expected, ImmutableArray<TextSpan> spans) = TextProcessor.FindSpansAndReplace(value, replacement1, replacement2);
+            (string source, string expected, ImmutableArray<TextSpan> spans) = FindSpansAndReplace(value, replacement1, replacement2);
 
-            (string source2, ImmutableDictionary<string, ImmutableArray<TextSpan>> annotatedSpans) = TextProcessor.FindAnnotatedSpansAndRemove(source);
+            (string source2, ImmutableDictionary<string, ImmutableArray<TextSpan>> annotatedSpans) = FindAnnotatedSpansAndRemove(source);
 
             ImmutableArray<TextSpan> additionalSpans = annotatedSpans.GetValueOrDefault("a");
 

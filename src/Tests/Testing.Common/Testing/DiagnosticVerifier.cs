@@ -389,7 +389,7 @@ namespace Roslynator.Testing
                             actualEnumerator.Current,
                             state.DiagnosticMessage,
                             state.FormatProvider,
-                            checkAdditionalLocations: !state.AdditionalSpans.IsEmpty);
+                            verifyAdditionalLocations: state.AlwaysVerifyAdditionalLocations || !state.AdditionalSpans.IsEmpty);
                     }
                     else
                     {
@@ -430,14 +430,14 @@ namespace Roslynator.Testing
             Diagnostic actualDiagnostic,
             string message,
             IFormatProvider formatProvider,
-            bool checkAdditionalLocations = false)
+            bool verifyAdditionalLocations = false)
         {
             if (expectedDiagnostic.Id != actualDiagnostic.Id)
                 Assert.True(false, $"Diagnostic's ID expected to be \"{expectedDiagnostic.Id}\", actual: \"{actualDiagnostic.Id}\"{GetMessage()}");
 
             VerifyLocation(expectedDiagnostic.Location, actualDiagnostic.Location);
 
-            if (checkAdditionalLocations)
+            if (verifyAdditionalLocations)
                 VerifyAdditionalLocations(expectedDiagnostic.AdditionalLocations, actualDiagnostic.AdditionalLocations);
 
             if (message != null)

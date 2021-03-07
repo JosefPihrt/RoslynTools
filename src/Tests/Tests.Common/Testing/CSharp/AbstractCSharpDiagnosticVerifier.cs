@@ -33,8 +33,8 @@ namespace Roslynator.Testing.CSharp
             Debug.Assert(code.Spans.Length > 0);
 
             var state = new DiagnosticTestState(
-                code.Value,
                 Descriptor,
+                code.Value,
                 code.Spans,
                 code.AdditionalSpans,
                 additionalFiles: AdditionalFile.CreateRange(additionalFiles));
@@ -57,8 +57,8 @@ namespace Roslynator.Testing.CSharp
             Debug.Assert(code.Spans.Length > 0);
 
             var state = new DiagnosticTestState(
-                source,
                 Descriptor,
+                source,
                 code.Spans,
                 code.AdditionalSpans,
                 additionalFiles: AdditionalFile.CreateRange(additionalFiles));
@@ -77,8 +77,8 @@ namespace Roslynator.Testing.CSharp
             CancellationToken cancellationToken = default)
         {
             var state = new DiagnosticTestState(
-                source,
                 Descriptor,
+                source,
                 ImmutableArray.Create(span),
                 additionalFiles: AdditionalFile.CreateRange(additionalFiles));
 
@@ -96,8 +96,8 @@ namespace Roslynator.Testing.CSharp
             CancellationToken cancellationToken = default)
         {
             var state = new DiagnosticTestState(
-                source,
                 Descriptor,
+                source,
                 spans,
                 additionalFiles: AdditionalFile.CreateRange(additionalFiles));
 
@@ -119,8 +119,8 @@ namespace Roslynator.Testing.CSharp
             Debug.Assert(code.Spans.Length == 0);
 
             var state = new DiagnosticTestState(
-                code.Value,
                 Descriptor,
+                code.Value,
                 code.Spans,
                 code.AdditionalSpans,
                 AdditionalFile.CreateRange(additionalFiles));
@@ -138,8 +138,8 @@ namespace Roslynator.Testing.CSharp
             CancellationToken cancellationToken = default)
         {
             var state = new DiagnosticTestState(
-                source,
                 Descriptor,
+                source,
                 spans: null,
                 additionalFiles: AdditionalFile.CreateRange(additionalFiles));
 
@@ -164,8 +164,8 @@ namespace Roslynator.Testing.CSharp
             var expected = ExpectedTestState.Parse(expectedSource);
 
             var state = new DiagnosticTestState(
-                code.Value,
                 Descriptor,
+                code.Value,
                 code.Spans,
                 additionalSpans: code.AdditionalSpans,
                 additionalFiles: AdditionalFile.CreateRange(additionalFiles),
@@ -186,8 +186,8 @@ namespace Roslynator.Testing.CSharp
             Debug.Assert(code.Spans.Length > 0);
 
             var state = new DiagnosticTestState(
-                code.Value,
                 Descriptor,
+                code.Value,
                 code.Spans,
                 additionalSpans: code.AdditionalSpans,
                 additionalFiles: AdditionalFile.CreateRange(additionalFiles),
@@ -212,8 +212,8 @@ namespace Roslynator.Testing.CSharp
             var expected = ExpectedTestState.Parse(code.ExpectedValue);
 
             var state = new DiagnosticTestState(
-                code.Value,
                 Descriptor,
+                code.Value,
                 code.Spans,
                 code.AdditionalSpans,
                 AdditionalFile.CreateRange(additionalFiles),

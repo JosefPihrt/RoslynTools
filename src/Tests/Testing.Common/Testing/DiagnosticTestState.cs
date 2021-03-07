@@ -14,23 +14,25 @@ namespace Roslynator.Testing
     public sealed class DiagnosticTestState
     {
         public DiagnosticTestState(
-            string source,
             DiagnosticDescriptor descriptor,
+            string source,
             IEnumerable<TextSpan> spans,
             IEnumerable<TextSpan> additionalSpans = null,
             IEnumerable<AdditionalFile> additionalFiles = null,
             string diagnosticMessage = null,
             IFormatProvider formatProvider = null,
-            string equivalenceKey = null)
+            string equivalenceKey = null,
+            bool alwaysVerifyAdditionalLocations = false)
         {
-            Source = source ?? throw new ArgumentNullException(nameof(source));
             Descriptor = descriptor ?? throw new ArgumentNullException(nameof(descriptor));
+            Source = source ?? throw new ArgumentNullException(nameof(source));
             Spans = spans?.ToImmutableArray() ?? ImmutableArray<TextSpan>.Empty;
             AdditionalSpans = additionalSpans?.ToImmutableArray() ?? ImmutableArray<TextSpan>.Empty;
             AdditionalFiles = additionalFiles?.ToImmutableArray() ?? ImmutableArray<AdditionalFile>.Empty;
             DiagnosticMessage = diagnosticMessage;
             FormatProvider = formatProvider;
             EquivalenceKey = equivalenceKey;
+            AlwaysVerifyAdditionalLocations = alwaysVerifyAdditionalLocations;
 
             if (Spans.Length > 1
                 && !AdditionalSpans.IsEmpty)
@@ -41,20 +43,21 @@ namespace Roslynator.Testing
 
         internal DiagnosticTestState(DiagnosticTestState other)
             : this(
-                source: other.Source,
                 descriptor: other.Descriptor,
+                source: other.Source,
                 spans: other.Spans,
                 additionalSpans: other.AdditionalSpans,
                 additionalFiles: other.AdditionalFiles,
                 diagnosticMessage: other.DiagnosticMessage,
                 formatProvider: other.FormatProvider,
-                equivalenceKey: other.EquivalenceKey)
+                equivalenceKey: other.EquivalenceKey,
+                alwaysVerifyAdditionalLocations: other.AlwaysVerifyAdditionalLocations)
         {
         }
 
-        public string Source { get; }
-
         public DiagnosticDescriptor Descriptor { get; }
+
+        public string Source { get; }
 
         public ImmutableArray<TextSpan> Spans { get; }
 
@@ -71,6 +74,8 @@ namespace Roslynator.Testing
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private string DebuggerDisplay => $"{Descriptor.Id}  {Source}";
 
+        public bool AlwaysVerifyAdditionalLocations { get; }
+
         internal ImmutableArray<Diagnostic> GetDiagnostics(SyntaxTree tree)
         {
             return ImmutableArray.CreateRange(
@@ -82,24 +87,26 @@ namespace Roslynator.Testing
         }
 
         public DiagnosticTestState Update(
-            string source,
             DiagnosticDescriptor descriptor,
+            string source,
             IEnumerable<TextSpan> spans,
             IEnumerable<TextSpan> additionalSpans,
             IEnumerable<AdditionalFile> additionalFiles,
             string diagnosticMessage,
             IFormatProvider formatProvider,
-            string equivalenceKey)
+            string equivalenceKey,
+            bool alwaysVerifyAdditionalLocations)
         {
             return new DiagnosticTestState(
-                source: source,
                 descriptor: descriptor,
+                source: source,
                 spans: spans,
                 additionalSpans: additionalSpans,
                 additionalFiles: additionalFiles,
                 diagnosticMessage: diagnosticMessage,
                 formatProvider: formatProvider,
-                equivalenceKey: equivalenceKey);
+                equivalenceKey: equivalenceKey,
+                alwaysVerifyAdditionalLocations: alwaysVerifyAdditionalLocations);
         }
     }
 }

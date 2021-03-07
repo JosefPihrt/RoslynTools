@@ -1,5 +1,6 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
@@ -17,7 +18,7 @@ namespace Roslynator.Testing
             string title = null,
             IEnumerable<string> alwaysVerifyAnnotations = null)
         {
-            Source = source;
+            Source = source ?? throw new ArgumentNullException(nameof(source));
             Spans = spans?.ToImmutableDictionary(f => f.Key, f => f.Value) ?? ImmutableDictionary<string, ImmutableArray<TextSpan>>.Empty;
             Title = title;
             AlwaysVerifyAnnotations = alwaysVerifyAnnotations?.ToImmutableArray() ?? ImmutableArray<string>.Empty;
