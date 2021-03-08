@@ -7,29 +7,43 @@ using System.Linq;
 
 namespace Roslynator.Testing
 {
+    /// <summary>
+    /// Represents additional code file.
+    /// </summary>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public readonly struct AdditionalFile
     {
+        /// <summary>
+        /// Initializes a new instance of <see cref="AdditionalFile"/>
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="expectedSource"></param>
         public AdditionalFile(string source, string expectedSource = null)
         {
             Source = source;
             ExpectedSource = expectedSource;
         }
 
+        /// <summary>
+        /// Gets a source code.
+        /// </summary>
         public string Source { get; }
 
+        /// <summary>
+        /// Gets expected source code.
+        /// </summary>
         public string ExpectedSource { get; }
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private string DebuggerDisplay => Source;
 
-        public static ImmutableArray<AdditionalFile> CreateRange(IEnumerable<string> additionalFiles)
+        internal static ImmutableArray<AdditionalFile> CreateRange(IEnumerable<string> additionalFiles)
         {
             return additionalFiles?.Select(f => new AdditionalFile(f)).ToImmutableArray()
                 ?? ImmutableArray<AdditionalFile>.Empty;
         }
 
-        public static ImmutableArray<AdditionalFile> CreateRange(IEnumerable<(string source, string expectedSource)> additionalFiles)
+        internal static ImmutableArray<AdditionalFile> CreateRange(IEnumerable<(string source, string expectedSource)> additionalFiles)
         {
             return additionalFiles?.Select(f => new AdditionalFile(f.source, f.expectedSource)).ToImmutableArray()
                 ?? ImmutableArray<AdditionalFile>.Empty;

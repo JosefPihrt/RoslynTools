@@ -8,9 +8,19 @@ using Microsoft.CodeAnalysis.Text;
 
 namespace Roslynator.Testing
 {
+    /// <summary>
+    /// Gets test data for a code refactoring.
+    /// </summary>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public sealed class RefactoringTestState
     {
+        /// <summary>
+        /// Initializes a new instance of <see cref="RefactoringTestState"/>.
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="spans"></param>
+        /// <param name="additionalFiles"></param>
+        /// <param name="equivalenceKey"></param>
         public RefactoringTestState(
             string source,
             IEnumerable<TextSpan> spans,
@@ -23,12 +33,24 @@ namespace Roslynator.Testing
             EquivalenceKey = equivalenceKey;
         }
 
+        /// <summary>
+        /// Gets a source code to be refactored.
+        /// </summary>
         public string Source { get; }
 
+        /// <summary>
+        /// Gets text spans on which a code refactoring will be applied.
+        /// </summary>
         public ImmutableArray<TextSpan> Spans { get; private set; }
 
+        /// <summary>
+        /// Gets additional source files.
+        /// </summary>
         public ImmutableArray<AdditionalFile> AdditionalFiles { get; }
 
+        /// <summary>
+        /// Gets code action's equivalence key.
+        /// </summary>
         public string EquivalenceKey { get; }
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
@@ -43,6 +65,13 @@ namespace Roslynator.Testing
         {
         }
 
+        /// <summary>
+        /// Creates and return new instance of <see cref="RefactoringTestState"/> updated with specified values.
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="spans"></param>
+        /// <param name="additionalFiles"></param>
+        /// <param name="equivalenceKey"></param>
         public RefactoringTestState Update(
             string source,
             IEnumerable<TextSpan> spans,

@@ -12,7 +12,7 @@ using Microsoft.CodeAnalysis.Text;
 namespace Roslynator.Testing
 {
     /// <summary>
-    /// Represents verifier for a refactoring that is provided by <see cref="RefactoringProvider"/>
+    /// Represents verifier for a code refactoring.
     /// </summary>
     public abstract class RefactoringVerifier<TRefactoringProvider> : CodeVerifier
         where TRefactoringProvider : CodeRefactoringProvider, new()
@@ -21,6 +21,13 @@ namespace Roslynator.Testing
         {
         }
 
+        /// <summary>
+        /// Verifies that refactoring will be applied correctly using specified <typeparamref name="TRefactoringProvider"/>.
+        /// </summary>
+        /// <param name="state"></param>
+        /// <param name="expected"></param>
+        /// <param name="options"></param>
+        /// <param name="cancellationToken"></param>
         public async Task VerifyRefactoringAsync(
             RefactoringTestState state,
             ExpectedTestState expected,
@@ -70,7 +77,7 @@ namespace Roslynator.Testing
 
                     Assert.True(action != null, "No code refactoring has been registered.");
 
-                    document = await VerifyAndApplyCodeActionAsync(document, action, expected.Title);
+                    document = await VerifyAndApplyCodeActionAsync(document, action, expected.CodeActionTitle);
                     semanticModel = await document.GetSemanticModelAsync(cancellationToken);
 
                     ImmutableArray<Diagnostic> newCompilerDiagnostics = semanticModel.GetDiagnostics(cancellationToken: cancellationToken);
@@ -83,6 +90,12 @@ namespace Roslynator.Testing
             }
         }
 
+        /// <summary>
+        /// Verifies that refactoring will not be applied using specified <typeparamref name="TRefactoringProvider"/>.
+        /// </summary>
+        /// <param name="state"></param>
+        /// <param name="options"></param>
+        /// <param name="cancellationToken"></param>
         public async Task VerifyNoRefactoringAsync(
             RefactoringTestState state,
             TestOptions options = null,

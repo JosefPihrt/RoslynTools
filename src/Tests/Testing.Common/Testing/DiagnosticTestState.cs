@@ -10,9 +10,24 @@ using Microsoft.CodeAnalysis.Text;
 
 namespace Roslynator.Testing
 {
+    /// <summary>
+    /// Represents test data for a diagnostic and its fix.
+    /// </summary>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public sealed class DiagnosticTestState
     {
+        /// <summary>
+        /// Initializes a new instance of <see cref="DiagnosticTestState"/>.
+        /// </summary>
+        /// <param name="descriptor"></param>
+        /// <param name="source"></param>
+        /// <param name="spans"></param>
+        /// <param name="additionalSpans"></param>
+        /// <param name="additionalFiles"></param>
+        /// <param name="diagnosticMessage"></param>
+        /// <param name="formatProvider"></param>
+        /// <param name="equivalenceKey"></param>
+        /// <param name="alwaysVerifyAdditionalLocations"></param>
         public DiagnosticTestState(
             DiagnosticDescriptor descriptor,
             string source,
@@ -55,25 +70,52 @@ namespace Roslynator.Testing
         {
         }
 
+        /// <summary>
+        /// Gets diagnostic's descriptor.
+        /// </summary>
         public DiagnosticDescriptor Descriptor { get; }
 
+        /// <summary>
+        /// Gets source that will report specified diagnostic.
+        /// </summary>
         public string Source { get; }
 
+        /// <summary>
+        /// Gets diagnostic's locations.
+        /// </summary>
         public ImmutableArray<TextSpan> Spans { get; }
 
+        /// <summary>
+        /// Gets diagnostic's additional locations.
+        /// </summary>
         public ImmutableArray<TextSpan> AdditionalSpans { get; }
 
+        /// <summary>
+        /// Gets additional source files.
+        /// </summary>
         public ImmutableArray<AdditionalFile> AdditionalFiles { get; }
 
+        /// <summary>
+        /// Gets diagnostic's message
+        /// </summary>
         public string DiagnosticMessage { get; }
 
+        /// <summary>
+        /// Gets format provider to be used to format diagnostic's message.
+        /// </summary>
         public IFormatProvider FormatProvider { get; }
 
+        /// <summary>
+        /// Gets code action's equivalence key.
+        /// </summary>
         public string EquivalenceKey { get; }
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private string DebuggerDisplay => $"{Descriptor.Id}  {Source}";
 
+        /// <summary>
+        /// True if additional locations should be always verified.
+        /// </summary>
         public bool AlwaysVerifyAdditionalLocations { get; }
 
         internal ImmutableArray<Diagnostic> GetDiagnostics(SyntaxTree tree)
@@ -86,6 +128,18 @@ namespace Roslynator.Testing
                     additionalLocations: AdditionalSpans.Select(span => Location.Create(tree, span)).ToImmutableArray()));
         }
 
+        /// <summary>
+        /// Creates and return new instance of <see cref="DiagnosticTestState"/> updated with specified values.
+        /// </summary>
+        /// <param name="descriptor"></param>
+        /// <param name="source"></param>
+        /// <param name="spans"></param>
+        /// <param name="additionalSpans"></param>
+        /// <param name="additionalFiles"></param>
+        /// <param name="diagnosticMessage"></param>
+        /// <param name="formatProvider"></param>
+        /// <param name="equivalenceKey"></param>
+        /// <param name="alwaysVerifyAdditionalLocations"></param>
         public DiagnosticTestState Update(
             DiagnosticDescriptor descriptor,
             string source,

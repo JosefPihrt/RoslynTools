@@ -11,15 +11,21 @@ namespace Roslynator.Testing.CSharp
         where TFixProvider : CodeFixProvider, new()
     {
         /// <summary>
-        /// Initializes a new instance of <see cref="CSharpCompilerDiagnosticFixVerifier"/>.
+        /// Initializes a new instance of <see cref="CSharpCompilerDiagnosticFixVerifier{TFixProvider}"/>.
         /// </summary>
         /// <param name="assert"></param>
         internal CSharpCompilerDiagnosticFixVerifier(IAssert assert) : base(assert)
         {
         }
 
+        /// <summary>
+        /// Gets a test options.
+        /// </summary>
         new public virtual CSharpTestOptions Options => CSharpTestOptions.Default;
 
+        /// <summary>
+        /// Gets common test options.
+        /// </summary>
         protected override TestOptions CommonOptions => Options;
     }
 }

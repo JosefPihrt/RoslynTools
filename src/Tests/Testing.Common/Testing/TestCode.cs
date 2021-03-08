@@ -37,10 +37,13 @@ namespace Roslynator.Testing
         public string ExpectedValue { get; }
 
         /// <summary>
-        /// Gets a collections of spans that represent selected text.
+        /// Gets a collection of spans that represent selected text.
         /// </summary>
         public ImmutableArray<TextSpan> Spans { get; }
 
+        /// <summary>
+        /// Gets a collection of spans that represent additional selected text.
+        /// </summary>
         public ImmutableArray<TextSpan> AdditionalSpans { get; }
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]

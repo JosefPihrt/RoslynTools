@@ -143,6 +143,13 @@ namespace Roslynator.Testing
             }
         }
 
+        /// <summary>
+        /// Verifies that specified source will produce specified diagnostic and that the diagnostic will be fixed.
+        /// </summary>
+        /// <param name="state"></param>
+        /// <param name="expected"></param>
+        /// <param name="options"></param>
+        /// <param name="cancellationToken"></param>
         public async Task VerifyDiagnosticAndFixAsync(
             DiagnosticTestState state,
             ExpectedTestState expected,
@@ -153,6 +160,12 @@ namespace Roslynator.Testing
             await VerifyFixAsync(state, expected, options, cancellationToken);
         }
 
+        /// <summary>
+        /// Verifies that specified source will produce specified diagnostic and that the diagnostic will not be fixed.
+        /// </summary>
+        /// <param name="state"></param>
+        /// <param name="options"></param>
+        /// <param name="cancellationToken"></param>
         public async Task VerifyDiagnosticAndNoFixAsync(
             DiagnosticTestState state,
             TestOptions options = null,
@@ -270,7 +283,7 @@ namespace Roslynator.Testing
 
                     fixRegistered = true;
 
-                    document = await VerifyAndApplyCodeActionAsync(document, action, expected.Title);
+                    document = await VerifyAndApplyCodeActionAsync(document, action, expected.CodeActionTitle);
                     compilation = await document.Project.GetCompilationAsync(cancellationToken);
 
                     ImmutableArray<Diagnostic> newCompilerDiagnostics = compilation.GetDiagnostics(cancellationToken);

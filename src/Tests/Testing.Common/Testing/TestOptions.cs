@@ -6,8 +6,17 @@ using Microsoft.CodeAnalysis;
 
 namespace Roslynator.Testing
 {
+    /// <summary>
+    /// Represents options for a code verifier.
+    /// </summary>
     public abstract class TestOptions
     {
+        /// <summary>
+        /// Initializes a new instance of <see cref="TestOptions"/>.
+        /// </summary>
+        /// <param name="metadataReferences"></param>
+        /// <param name="allowedCompilerDiagnosticIds"></param>
+        /// <param name="allowedCompilerDiagnosticSeverity"></param>
         internal TestOptions(
             IEnumerable<MetadataReference> metadataReferences = null,
             IEnumerable<string> allowedCompilerDiagnosticIds = null,
@@ -18,6 +27,9 @@ namespace Roslynator.Testing
             AllowedCompilerDiagnosticSeverity = allowedCompilerDiagnosticSeverity;
         }
 
+        /// <summary>
+        /// Gets a programming language.
+        /// </summary>
         public abstract string Language { get; }
 
         internal abstract string DocumentName { get; }

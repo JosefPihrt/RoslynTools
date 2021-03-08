@@ -25,6 +25,7 @@ namespace Roslynator.Testing
         /// Verifies that specified source will produce compiler diagnostic.
         /// </summary>
         /// <param name="state"></param>
+        /// <param name="expected"></param>
         /// <param name="options"></param>
         /// <param name="cancellationToken"></param>
         public async Task VerifyFixAsync(
@@ -106,7 +107,7 @@ namespace Roslynator.Testing
 
                     fixRegistered = true;
 
-                    document = await VerifyAndApplyCodeActionAsync(document, action, expected.Title);
+                    document = await VerifyAndApplyCodeActionAsync(document, action, expected.CodeActionTitle);
 
                     previousDiagnostics = diagnostics;
                 }
