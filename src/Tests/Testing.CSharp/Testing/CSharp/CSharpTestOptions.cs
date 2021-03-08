@@ -11,8 +11,19 @@ using Microsoft.CodeAnalysis.CSharp;
 
 namespace Roslynator.Testing.CSharp
 {
+    /// <summary>
+    /// Represents options for a C# code verifier.
+    /// </summary>
     public sealed class CSharpTestOptions : TestOptions
     {
+        /// <summary>
+        /// Initializes a new instance of <see cref="CSharpTestOptions"/>.
+        /// </summary>
+        /// <param name="compilationOptions"></param>
+        /// <param name="parseOptions"></param>
+        /// <param name="metadataReferences"></param>
+        /// <param name="allowedCompilerDiagnosticIds"></param>
+        /// <param name="allowedCompilerDiagnosticSeverity"></param>
         public CSharpTestOptions(
             CSharpCompilationOptions compilationOptions = null,
             CSharpParseOptions parseOptions = null,
@@ -35,6 +46,9 @@ namespace Roslynator.Testing.CSharp
             ParseOptions = other.ParseOptions;
         }
 
+        /// <summary>
+        /// Gets C# programming language identifier.
+        /// </summary>
         public override string Language => LanguageNames.CSharp;
 
         internal override string DocumentName => "Test.cs";
@@ -143,6 +157,7 @@ namespace Roslynator.Testing.CSharp
                     ParseOptions.PreprocessorSymbolNames.Concat(new[] { "DEBUG" })));
         }
 
+#pragma warning disable CS1591
         protected override TestOptions CommonWithMetadataReferences(IEnumerable<MetadataReference> values)
         {
             return new CSharpTestOptions(this) { MetadataReferences = values?.ToImmutableArray() ?? ImmutableArray<MetadataReference>.Empty };
@@ -182,5 +197,6 @@ namespace Roslynator.Testing.CSharp
         {
             return (CSharpTestOptions)base.WithAllowedCompilerDiagnosticSeverity(value);
         }
+#pragma warning restore CS1591
     }
 }

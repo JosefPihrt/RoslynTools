@@ -28,7 +28,7 @@ namespace Roslynator.Testing
         }
 
         /// <summary>
-        /// Gets a programming language.
+        /// Gets a programming language identifier.
         /// </summary>
         public abstract string Language { get; }
 
@@ -54,12 +54,22 @@ namespace Roslynator.Testing
         /// </summary>
         public CompilationOptions CompilationOptions => CommonCompilationOptions;
 
+        /// <summary>
+        /// Gets metadata references of a test project.
+        /// </summary>
         public ImmutableArray<MetadataReference> MetadataReferences { get; protected set; }
 
+        /// <summary>
+        /// Gets a collection of compiler diagnostic IDs.
+        /// </summary>
         public ImmutableArray<string> AllowedCompilerDiagnosticIds { get; protected set; }
 
+        /// <summary>
+        /// Gets a maximal allowed compiler diagnostic severity.
+        /// </summary>
         public DiagnosticSeverity AllowedCompilerDiagnosticSeverity { get; protected set; }
 
+#pragma warning disable CS1591
         protected abstract TestOptions CommonWithMetadataReferences(IEnumerable<MetadataReference> values);
 
         protected abstract TestOptions CommonWithAllowedCompilerDiagnosticIds(IEnumerable<string> values);
@@ -80,6 +90,7 @@ namespace Roslynator.Testing
         {
             return CommonWithAllowedCompilerDiagnosticSeverity(value);
         }
+#pragma warning restore CS1591
 
         internal bool IsAllowedCompilerDiagnostic(Diagnostic diagnostic)
         {
