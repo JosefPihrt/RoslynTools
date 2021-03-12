@@ -75,7 +75,7 @@ class C
         s = string.Empty;
     }
 }
-", options: Options.EnableDiagnostic(AnalyzerOptions.UseStringEmptyInsteadOfEmptyStringLiteral));
+", options: Options.EnableDiagnostic(AnalyzerOptionDiagnosticDescriptors.UseStringEmptyInsteadOfEmptyStringLiteral));
         }
 
         [Fact, Trait(Traits.Analyzer, DiagnosticIdentifiers.UseEmptyStringLiteralInsteadOfStringEmptyOrViceVersa)]
@@ -91,7 +91,7 @@ class C
         s = ""a"";
     }
 }
-", options: Options.EnableDiagnostic(AnalyzerOptions.UseStringEmptyInsteadOfEmptyStringLiteral));
+", options: Options.EnableDiagnostic(AnalyzerOptionDiagnosticDescriptors.UseStringEmptyInsteadOfEmptyStringLiteral));
         }
 
         [Fact, Trait(Traits.Analyzer, DiagnosticIdentifiers.UseEmptyStringLiteralInsteadOfStringEmptyOrViceVersa)]
@@ -116,7 +116,7 @@ class C
         }
     }
 }
-", options: Options.EnableDiagnostic(AnalyzerOptions.UseStringEmptyInsteadOfEmptyStringLiteral));
+", options: Options.EnableDiagnostic(AnalyzerOptionDiagnosticDescriptors.UseStringEmptyInsteadOfEmptyStringLiteral));
         }
     }
 }

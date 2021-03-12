@@ -251,7 +251,7 @@ namespace Roslynator.Formatting.CSharp
             DiagnosticDescriptor descriptor,
             SyntaxTrivia trivia)
         {
-            if (!context.IsAnalyzerSuppressed(descriptor))
+            if (descriptor.IsEffective(context))
                 DiagnosticHelpers.ReportDiagnostic(context, descriptor, Location.Create(context.Node.SyntaxTree, trivia.Span.WithLength(0)));
         }
     }

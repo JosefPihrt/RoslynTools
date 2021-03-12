@@ -56,7 +56,7 @@ namespace Roslynator.CodeAnalysis.CSharp
                         {
                             case "First":
                                 {
-                                    if (!context.IsAnalyzerSuppressed(DiagnosticDescriptors.UseElementAccess))
+                                    if (DiagnosticDescriptors.UseElementAccess.IsEffective(context))
                                         UseElementAccessInsteadOfCallingFirst();
 
                                     break;
@@ -71,14 +71,14 @@ namespace Roslynator.CodeAnalysis.CSharp
                         {
                             case "ElementAt":
                                 {
-                                    if (!context.IsAnalyzerSuppressed(DiagnosticDescriptors.UseElementAccess))
+                                    if (DiagnosticDescriptors.UseElementAccess.IsEffective(context))
                                         UseElementAccessInsteadOfCallingElementAt();
 
                                     break;
                                 }
                             case "IsKind":
                                 {
-                                    if (!context.IsAnalyzerSuppressed(DiagnosticDescriptors.UnnecessaryNullCheck))
+                                    if (DiagnosticDescriptors.UnnecessaryNullCheck.IsEffective(context))
                                         AnalyzeUnnecessaryNullCheck();
 
                                     break;
@@ -89,7 +89,7 @@ namespace Roslynator.CodeAnalysis.CSharp
                     }
             }
 
-            if (!context.IsAnalyzerSuppressed(DiagnosticDescriptors.UseReturnValue)
+            if (DiagnosticDescriptors.UseReturnValue.IsEffective(context)
                 && invocationExpression.IsParentKind(SyntaxKind.ExpressionStatement))
             {
                 UseReturnValue();

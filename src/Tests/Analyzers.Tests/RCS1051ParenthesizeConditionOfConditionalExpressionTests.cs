@@ -81,7 +81,7 @@ class C
         string s = b ? ""true"" : ""false"";
     }
 }
-", options: Options.EnableDiagnostic(AnalyzerOptions.RemoveParenthesesFromConditionOfConditionalExpressionWhenExpressionIsSingleToken));
+", options: Options.EnableDiagnostic(AnalyzerOptionDiagnosticDescriptors.RemoveParenthesesFromConditionOfConditionalExpressionWhenExpressionIsSingleToken));
         }
 
         [Fact, Trait(Traits.Analyzer, DiagnosticIdentifiers.ParenthesizeConditionOfConditionalExpression)]
@@ -96,7 +96,7 @@ public class C
         string s = b ? ""true"" : ""false"";
     }
 }
-", options: Options.EnableDiagnostic(AnalyzerOptions.RemoveParenthesesFromConditionOfConditionalExpressionWhenExpressionIsSingleToken));
+", options: Options.EnableDiagnostic(AnalyzerOptionDiagnosticDescriptors.RemoveParenthesesFromConditionOfConditionalExpressionWhenExpressionIsSingleToken));
         }
     }
 }

@@ -14,7 +14,7 @@ namespace Roslynator.CSharp.Analysis.Tests
 
         public override CSharpTestOptions Options
         {
-            get { return base.Options.EnableDiagnostic(AnalyzerOptions.UseImplicitlyTypedArray); }
+            get { return base.Options.EnableDiagnostic(AnalyzerOptionDiagnosticDescriptors.UseImplicitlyTypedArray); }
         }
 
         [Fact, Trait(Traits.Analyzer, DiagnosticIdentifiers.UseExplicitlyTypedArrayOrViceVersa)]
@@ -84,7 +84,7 @@ class C
         var x = new[] { """" };
     }
 }
-", options: Options.EnableDiagnostic(AnalyzerOptions.UseImplicitlyTypedArrayWhenTypeIsObvious));
+", options: Options.EnableDiagnostic(AnalyzerOptionDiagnosticDescriptors.UseImplicitlyTypedArrayWhenTypeIsObvious));
         }
 
         [Fact, Trait(Traits.Analyzer, DiagnosticIdentifiers.UseExplicitlyTypedArrayOrViceVersa)]
@@ -130,7 +130,7 @@ class A
 class B : A
 {
 }
-", options: Options.EnableDiagnostic(AnalyzerOptions.UseImplicitlyTypedArrayWhenTypeIsObvious));
+", options: Options.EnableDiagnostic(AnalyzerOptionDiagnosticDescriptors.UseImplicitlyTypedArrayWhenTypeIsObvious));
         }
 
         [Fact, Trait(Traits.Analyzer, DiagnosticIdentifiers.UseExplicitlyTypedArrayOrViceVersa)]
@@ -172,7 +172,7 @@ class C
 
     string M2() => null;
 }
-", options: Options.EnableDiagnostic(AnalyzerOptions.UseImplicitlyTypedArrayWhenTypeIsObvious));
+", options: Options.EnableDiagnostic(AnalyzerOptionDiagnosticDescriptors.UseImplicitlyTypedArrayWhenTypeIsObvious));
         }
 
         [Fact, Trait(Traits.Analyzer, DiagnosticIdentifiers.UseExplicitlyTypedArrayOrViceVersa)]

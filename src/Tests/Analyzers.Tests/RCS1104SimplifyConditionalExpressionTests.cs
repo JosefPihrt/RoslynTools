@@ -104,7 +104,7 @@ class C
         bool z = !x && y;
     }
 }
-", options: Options.EnableDiagnostic(AnalyzerOptions.SimplifyConditionalExpressionWhenItIncludesNegationOfCondition));
+", options: Options.EnableDiagnostic(AnalyzerOptionDiagnosticDescriptors.SimplifyConditionalExpressionWhenItIncludesNegationOfCondition));
         }
 
         [Fact, Trait(Traits.Analyzer, DiagnosticIdentifiers.SimplifyConditionalExpression)]
@@ -130,7 +130,7 @@ class C
         bool z = !x || y;
     }
 }
-", options: Options.EnableDiagnostic(AnalyzerOptions.SimplifyConditionalExpressionWhenItIncludesNegationOfCondition));
+", options: Options.EnableDiagnostic(AnalyzerOptionDiagnosticDescriptors.SimplifyConditionalExpressionWhenItIncludesNegationOfCondition));
         }
 
         [Fact, Trait(Traits.Analyzer, DiagnosticIdentifiers.SimplifyConditionalExpression)]

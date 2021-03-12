@@ -81,7 +81,7 @@ namespace Roslynator.Formatting.CSharp
 
         private static void Analyze(SyntaxNodeAnalysisContext context, SyntaxToken token, ExpressionSyntax expression)
         {
-            FormattingSuggestion suggestion = FormattingAnalysis.AnalyzeNewLineBeforeOrAfter(context, token, expression, AnalyzerOptions.AddNewLineAfterEqualsSignInsteadOfBeforeIt);
+            FormattingSuggestion suggestion = FormattingAnalysis.AnalyzeNewLineBeforeOrAfter(context, token, expression, AnalyzerOptionDiagnosticDescriptors.AddNewLineAfterEqualsSignInsteadOfBeforeIt);
 
             if (suggestion == FormattingSuggestion.AddNewLineBefore)
             {

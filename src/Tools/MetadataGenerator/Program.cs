@@ -154,7 +154,9 @@ namespace Roslynator.CodeGeneration
                     WriteAnalyzerMarkdown(analyzer, appliesTo);
                 }
 
-                foreach (AnalyzerMetadata analyzer in analyzers.SelectMany(a => a.OptionAnalyzers))
+                foreach (AnalyzerMetadata analyzer in analyzers
+                    .SelectMany(a => a.OptionAnalyzers)
+                    .Where(a => a.Id != null))
                 {
                     WriteAnalyzerMarkdown(analyzer, appliesTo);
                 }
@@ -167,7 +169,8 @@ namespace Roslynator.CodeGeneration
                     MarkdownGenerator.CreateAnalyzerMarkdown(analyzer, appliesTo),
                     fileMustExists: false);
 
-                foreach (AnalyzerMetadata optionAnalyzer in analyzer.OptionAnalyzers)
+                foreach (AnalyzerMetadata optionAnalyzer in analyzer.OptionAnalyzers
+                    .Where(f => f.Id != null))
                 {
                     WriteAllText(
                         $@"..\docs\analyzers\{optionAnalyzer.Id}.md",
@@ -226,6 +229,7 @@ namespace Roslynator.CodeGeneration
 
                 ImmutableDictionary<string, AnalyzerMetadata> dic = allAnalyzers
                     .Concat(allAnalyzers.SelectMany(f => f.OptionAnalyzers))
+                    .Where(f => f.Id != null)
                     .ToImmutableDictionary(f => f.Id, f => f);
 
                 s = issueRegex.Replace(s, "([issue](https://github.com/JosefPihrt/Roslynator/issues/${issue}))");

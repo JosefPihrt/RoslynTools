@@ -40,7 +40,7 @@ namespace Roslynator.Formatting.CSharp
                 || trailingTrivia.SingleOrDefault(shouldThrow: false).IsWhitespaceTrivia())
             {
                 if (!doStatement.WhileKeyword.LeadingTrivia.Any()
-                    && context.IsAnalyzerSuppressed(AnalyzerOptions.RemoveNewLineBetweenClosingBraceAndWhileKeyword))
+                    && !AnalyzerOptions.RemoveNewLineBetweenClosingBraceAndWhileKeyword.IsEnabled(context))
                 {
                     context.ReportDiagnostic(
                         DiagnosticDescriptors.AddNewLineBetweenClosingBraceAndWhileKeywordOrViceVersa,
@@ -50,7 +50,7 @@ namespace Roslynator.Formatting.CSharp
             else if (SyntaxTriviaAnalysis.IsOptionalWhitespaceThenEndOfLineTrivia(trailingTrivia))
             {
                 if (doStatement.WhileKeyword.LeadingTrivia.IsEmptyOrWhitespace()
-                    && !context.IsAnalyzerSuppressed(AnalyzerOptions.RemoveNewLineBetweenClosingBraceAndWhileKeyword))
+                    && AnalyzerOptions.RemoveNewLineBetweenClosingBraceAndWhileKeyword.IsEnabled(context))
                 {
                     context.ReportDiagnostic(
                         DiagnosticDescriptors.ReportOnly.RemoveNewLineBetweenClosingBraceAndWhileKeyword,

@@ -6,7 +6,7 @@ using System;
 
 namespace Roslynator.CSharp
 {
-    public static partial class AnalyzerOptionIdentifiers
+    public static partial class AnalyzerOptionDiagnosticIdentifiers
     {
         public const string UseImplicitlyTypedArrayWhenTypeIsObvious = "RCS1014a";
         public const string UseImplicitlyTypedArray = "RCS1014i";

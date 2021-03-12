@@ -6,7 +6,7 @@ using System;
 
 namespace Roslynator.Formatting.CSharp
 {
-    public static partial class AnalyzerOptionIdentifiers
+    public static partial class AnalyzerOptionDiagnosticIdentifiers
     {
         public const string RemoveEmptyLineBetweenSingleLineAccessors = "RCS0011i";
         public const string RemoveEmptyLineBetweenUsingDirectivesWithDifferentRootNamespace = "RCS0015i";

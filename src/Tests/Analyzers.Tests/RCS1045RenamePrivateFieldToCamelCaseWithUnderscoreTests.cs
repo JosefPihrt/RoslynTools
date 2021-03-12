@@ -104,7 +104,7 @@ class C
 {
     private static readonly string f;
 }
-", options: Options.EnableDiagnostic(AnalyzerOptions.DoNotRenamePrivateStaticReadOnlyFieldToCamelCaseWithUnderscore));
+", options: Options.EnableDiagnostic(AnalyzerOptionDiagnosticDescriptors.DoNotRenamePrivateStaticReadOnlyFieldToCamelCaseWithUnderscore));
         }
 
         [Fact, Trait(Traits.Analyzer, DiagnosticIdentifiers.RenamePrivateFieldToCamelCaseWithUnderscore)]

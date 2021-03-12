@@ -41,7 +41,7 @@ namespace Roslynator.Formatting.CSharp
 
             if (accessors.Any(f => f.BodyOrExpressionBody() != null))
             {
-                if (!context.IsAnalyzerSuppressed(DiagnosticDescriptors.AddNewLineBeforeAccessorOfFullProperty))
+                if (DiagnosticDescriptors.AddNewLineBeforeAccessorOfFullProperty.IsEffective(context))
                 {
                     SyntaxToken token = accessorList.OpenBraceToken;
 
@@ -65,7 +65,7 @@ namespace Roslynator.Formatting.CSharp
                     }
                 }
 
-                if (!context.IsAnalyzerSuppressed(DiagnosticDescriptors.RemoveNewLinesFromAccessorWithSingleLineExpression)
+                if (DiagnosticDescriptors.RemoveNewLinesFromAccessorWithSingleLineExpression.IsEffective(context)
                     && !accessorList.IsSingleLine(includeExteriorTrivia: false))
                 {
                     foreach (AccessorDeclarationSyntax accessor in accessors)
@@ -75,7 +75,7 @@ namespace Roslynator.Formatting.CSharp
                     }
                 }
             }
-            else if (!context.IsAnalyzerSuppressed(DiagnosticDescriptors.RemoveNewLinesFromAccessorListOfAutoProperty))
+            else if (DiagnosticDescriptors.RemoveNewLinesFromAccessorListOfAutoProperty.IsEffective(context))
             {
                 SyntaxNode parent = accessorList.Parent;
 

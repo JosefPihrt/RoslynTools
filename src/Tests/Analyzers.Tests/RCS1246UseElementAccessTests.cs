@@ -199,7 +199,7 @@ class C
         x = ((string)x).ToString().ElementAt(1);
     }
 }
-", options: Options.EnableDiagnostic(AnalyzerOptions.DoNotUseElementAccessWhenExpressionIsInvocation));
+", options: Options.EnableDiagnostic(AnalyzerOptionDiagnosticDescriptors.DoNotUseElementAccessWhenExpressionIsInvocation));
         }
 
         [Fact, Trait(Traits.Analyzer, DiagnosticIdentifiers.UseElementAccess)]

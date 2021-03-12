@@ -27,13 +27,13 @@ namespace Roslynator.CSharp.Analysis
         {
             base.Initialize(context);
 
-            context.RegisterCompilationStartAction(startContext =>
-            {
-                if (startContext.IsAnalyzerSuppressed(DiagnosticDescriptors.RemoveRedundantParentheses))
-                    return;
-
-                startContext.RegisterSyntaxNodeAction(f => AnalyzeParenthesizedExpression(f), SyntaxKind.ParenthesizedExpression);
-            });
+            context.RegisterSyntaxNodeAction(
+                c =>
+                {
+                    if (DiagnosticDescriptors.RemoveRedundantParentheses.IsEffective(c))
+                        AnalyzeParenthesizedExpression(c);
+                },
+                SyntaxKind.ParenthesizedExpression);
         }
 
         private static void AnalyzeParenthesizedExpression(SyntaxNodeAnalysisContext context)

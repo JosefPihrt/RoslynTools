@@ -774,7 +774,7 @@ class C
             b"";
     }
 }
-", options: Options.EnableDiagnostic(AnalyzerOptions.ConvertExpressionBodyToBlockBodyWhenExpressionIsMultiLine));
+", options: Options.EnableDiagnostic(AnalyzerOptionDiagnosticDescriptors.ConvertExpressionBodyToBlockBodyWhenExpressionIsMultiLine));
         }
 
         [Fact, Trait(Traits.Analyzer, DiagnosticIdentifiers.ConvertBlockBodyToExpressionBodyOrViceVersa)]
