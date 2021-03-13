@@ -539,5 +539,28 @@ namespace N
 }
 ");
         }
+
+        [Fact, Trait(Traits.Analyzer, DiagnosticIdentifiers.RemoveRedundantParentheses)]
+        public async Task TestNoDiagnostic_SwitchExpressionInsideAwaitExpression()
+        {
+            await VerifyNoDiagnosticAsync(@"
+using System;
+using System.Threading.Tasks;
+
+class C
+{
+    async Task<string> M()
+    {
+        string action = null;
+
+        return await (action switch
+        {
+            """" => Task.FromResult(default(string)),
+            _ => throw new NotSupportedException(),
+        });
+    }
+}
+");
+        }
     }
 }

@@ -379,6 +379,22 @@ foreach (var item in items) // [|Id|]
           </Sample>
         </Samples>
       </Option>
+      <Option Identifier="ConvertExpressionBodyToBlockBody">
+        <Title>Convert expression-body to block body.</Title>
+        <Id>i</Id>
+        <OptionKey>invert</OptionKey>
+        <Kind>Invert</Kind>
+        <Samples>
+          <Sample>
+            <Before><![CDATA[public string Foo() => null; // [|Id|]]]></Before>
+            <After><![CDATA[public string Foo()
+{
+    return null;
+}
+]]></After>
+          </Sample>
+        </Samples>
+      </Option>
     </Options>
   </Analyzer>
   <Analyzer Identifier="AvoidMultilineExpressionBody">

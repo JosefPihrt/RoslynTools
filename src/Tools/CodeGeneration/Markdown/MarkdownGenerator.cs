@@ -247,7 +247,11 @@ namespace Roslynator.CodeGeneration.Markdown
             yield return BulletList(content);
         }
 
-        public static string CreateCompilerDiagnosticMarkdown(CompilerDiagnosticMetadata diagnostic, IEnumerable<CodeFixMetadata> codeFixes, IComparer<string> comparer)
+        public static string CreateCompilerDiagnosticMarkdown(
+            CompilerDiagnosticMetadata diagnostic,
+            IEnumerable<CodeFixMetadata> codeFixes,
+            ImmutableArray<CodeFixOption> options,
+            IComparer<string> comparer)
         {
             MDocument document = Document(
                 Heading1(diagnostic.Id),
@@ -261,11 +265,31 @@ namespace Roslynator.CodeGeneration.Markdown
                 BulletList(codeFixes
                     .Where(f => f.FixableDiagnosticIds.Any(diagnosticId => diagnosticId == diagnostic.Id))
                     .Select(f => f.Title)
-                    .OrderBy(f => f, comparer)));
+                    .OrderBy(f => f, comparer)),
+                GetOptions());
 
             document.AddFootnote();
 
             return document.ToString(MarkdownFormat.Default.WithTableOptions(MarkdownFormat.Default.TableOptions | TableOptions.FormatContent));
+
+            IEnumerable<MElement> GetOptions()
+            {
+                string content = string.Join(
+                    NewLine,
+                    options
+                        .Where(f => f.Key.Contains(diagnostic.Id))
+                        .OrderBy(f => f.Key)
+                        .Select(f => $"{f.Key} = {f.Value}"));
+
+                if (!string.IsNullOrEmpty(content))
+                {
+                    yield return Heading2("Options");
+
+                    yield return FencedCodeBlock(
+                        content,
+                        "editorconfig");
+                }
+            }
         }
 
         public static string CreateAnalyzersReadMe(IEnumerable<AnalyzerMetadata> analyzers, string title, IComparer<string> comparer)

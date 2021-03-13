@@ -57,6 +57,18 @@ namespace Roslynator.CSharp
             helpLinkUri:        AnalyzerOptionDiagnosticIdentifiers.ConvertExpressionBodyToBlockBodyWhenDeclarationIsMultiLine, 
             customTags:         Array.Empty<string>());
 
+        /// <summary>RCS1016i</summary>
+        public static readonly DiagnosticDescriptor ConvertExpressionBodyToBlockBody = DiagnosticDescriptorFactory.Default.Create(
+            id:                 AnalyzerOptionDiagnosticIdentifiers.ConvertExpressionBodyToBlockBody, 
+            title:              "Convert expression-body to block body.", 
+            messageFormat:      "Convert expression-body to block body.", 
+            category:           DiagnosticCategories.AnalyzerOption, 
+            defaultSeverity:    DiagnosticSeverity.Hidden, 
+            isEnabledByDefault: false, 
+            description:        null, 
+            helpLinkUri:        AnalyzerOptionDiagnosticIdentifiers.ConvertExpressionBodyToBlockBody, 
+            customTags:         Array.Empty<string>());
+
         /// <summary>RCS1018i</summary>
         public static readonly DiagnosticDescriptor RemoveAccessibilityModifiers = DiagnosticDescriptorFactory.Default.Create(
             id:                 AnalyzerOptionDiagnosticIdentifiers.RemoveAccessibilityModifiers, 

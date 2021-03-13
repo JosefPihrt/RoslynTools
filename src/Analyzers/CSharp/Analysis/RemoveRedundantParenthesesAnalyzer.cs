@@ -177,6 +177,9 @@ namespace Roslynator.CSharp.Analysis
                     }
                 case SyntaxKind.AwaitExpression:
                     {
+                        if (parenthesizedExpression.Expression.IsKind(SyntaxKind.SwitchExpression))
+                            return;
+
                         if (CSharpFacts.GetOperatorPrecedence(expression.Kind()) <= CSharpFacts.GetOperatorPrecedence(SyntaxKind.AwaitExpression))
                             ReportDiagnostic();
 

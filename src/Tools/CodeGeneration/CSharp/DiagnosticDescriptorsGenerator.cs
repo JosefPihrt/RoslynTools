@@ -153,6 +153,7 @@ namespace Roslynator.CodeGeneration.CSharp
             {
                 var settings = new DocumentationCommentGeneratorSettings(
                     summary: new string[] { analyzer.Id },
+                    ignoredTags: new[] { "returns", "value" },
                     indentation: "        ",
                     singleLineSummary: true);
 

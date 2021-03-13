@@ -12,6 +12,7 @@ namespace Roslynator.CSharp
         public const string UseImplicitlyTypedArray = "RCS1014i";
         public const string ConvertExpressionBodyToBlockBodyWhenExpressionIsMultiLine = "RCS1016a";
         public const string ConvertExpressionBodyToBlockBodyWhenDeclarationIsMultiLine = "RCS1016b";
+        public const string ConvertExpressionBodyToBlockBody = "RCS1016i";
         public const string RemoveAccessibilityModifiers = "RCS1018i";
         public const string RemoveEmptyLineBetweenClosingBraceAndSwitchSection = "RCS1036a";
         public const string DoNotRenamePrivateStaticReadOnlyFieldToCamelCaseWithUnderscore = "RCS1045a";

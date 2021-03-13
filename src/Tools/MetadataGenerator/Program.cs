@@ -6,6 +6,7 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -99,11 +100,25 @@ namespace Roslynator.CodeGeneration
                     fileMustExists: false);
             }
 
-            foreach (CompilerDiagnosticMetadata diagnostic in compilerDiagnostics)
+            IEnumerable<CompilerDiagnosticMetadata> fixableCompilerDiagnostics = compilerDiagnostics
+                .Join(codeFixes.SelectMany(f => f.FixableDiagnosticIds), f => f.Id, f => f, (f, _) => f)
+                .Distinct();
+
+            ImmutableArray<CodeFixOption> codeFixOptions = typeof(CodeFixOptions).GetFields()
+                .Select(f =>
+                {
+                    var key = (string)f.GetValue(null);
+                    string value = f.GetCustomAttribute<CodeFixOptionAttribute>().Value;
+
+                    return new CodeFixOption(key, value);
+                })
+                .ToImmutableArray();
+
+            foreach (CompilerDiagnosticMetadata diagnostic in fixableCompilerDiagnostics)
             {
                 WriteAllText(
                     $@"..\docs\cs\{diagnostic.Id}.md",
-                    MarkdownGenerator.CreateCompilerDiagnosticMarkdown(diagnostic, codeFixes, comparer),
+                    MarkdownGenerator.CreateCompilerDiagnosticMarkdown(diagnostic, codeFixes, codeFixOptions, comparer),
                     fileMustExists: false);
             }
 
@@ -117,7 +132,7 @@ namespace Roslynator.CodeGeneration
 
             WriteAllText(
                 @"CodeFixes\README.md",
-                MarkdownGenerator.CreateCodeFixesReadMe(compilerDiagnostics, comparer));
+                MarkdownGenerator.CreateCodeFixesReadMe(fixableCompilerDiagnostics, comparer));
 
             // find files to delete
             foreach (string path in Directory.EnumerateFiles(GetPath(@"..\docs\refactorings")))
