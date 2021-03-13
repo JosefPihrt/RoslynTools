@@ -70,11 +70,8 @@ namespace Roslynator.Testing
                     if (previousDiagnostics.Any())
                         VerifyNoNewCompilerDiagnostics(previousDiagnostics, diagnostics, options);
 
-                    if (length == previousDiagnostics.Length
-                        && !diagnostics.Except(previousDiagnostics, DiagnosticDeepEqualityComparer.Instance).Any())
-                    {
-                        Assert.True(false, "Same diagnostics returned before and after the fix was applied.");
-                    }
+                    if (DiagnosticDeepEqualityComparer.Equals(diagnostics, previousDiagnostics))
+                        Assert.True(false, "Same diagnostics returned before and after the fix was applied." + diagnostics.ToDebugString());
 
                     Diagnostic diagnostic = FindDiagnosticToFix(diagnostics);
 

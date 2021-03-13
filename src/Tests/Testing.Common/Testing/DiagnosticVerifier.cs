@@ -217,6 +217,8 @@ namespace Roslynator.Testing
 
                 ImmutableArray<Diagnostic> previousDiagnostics = ImmutableArray<Diagnostic>.Empty;
 
+                ImmutableArray<Diagnostic> previousPreviousDiagnostics = ImmutableArray<Diagnostic>.Empty;
+
                 var fixRegistered = false;
 
                 while (true)
@@ -230,11 +232,11 @@ namespace Roslynator.Testing
                     if (length == 0)
                         break;
 
-                    if (length == previousDiagnostics.Length
-                        && diagnostics.Intersect(previousDiagnostics, DiagnosticDeepEqualityComparer.Instance).Count() == length)
-                    {
-                        Assert.True(false, "Same diagnostics returned before and after the fix was applied.");
-                    }
+                    if (DiagnosticDeepEqualityComparer.Equals(diagnostics, previousDiagnostics))
+                        Assert.True(false, "Same diagnostics returned before and after the fix was applied." + diagnostics.ToDebugString());
+
+                    if (DiagnosticDeepEqualityComparer.Equals(diagnostics, previousPreviousDiagnostics))
+                        Assert.True(false, "Infinite loop detected: Reported diagnostics have been previously fixed." + diagnostics.ToDebugString());
 
                     Diagnostic diagnostic = FindDiagnosticToFix(diagnostics, expectedDiagnostics);
 
@@ -293,6 +295,7 @@ namespace Roslynator.Testing
 
                     compilation = UpdateCompilation(compilation, expectedDiagnostics);
 
+                    previousPreviousDiagnostics = previousDiagnostics;
                     previousDiagnostics = diagnostics;
                 }
 
